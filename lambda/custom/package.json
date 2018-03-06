@@ -1,0 +1,19 @@
+{
+  "name": "skill-sample-nodejs-buttons-colorchanger",
+  "version": "1.0.0",
+  "description": "Echo Buttons Color Changer Sample Skill",
+  "main": "index.js",
+  "dependencies": {
+    "alexa-sdk": "^1.0.15"
+  },
+  "keywords": [
+    "alexa",
+    "skill",
+    "echo buttons"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Amazon.com",
+  "license": "ADSL"
+}

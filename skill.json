@@ -1,0 +1,55 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-US": {
+          "summary": "This is an example skill to show how to use the Alexa Gadgets API",
+          "examplePhrases": [
+            "Alexa, open color changer",
+            "Alexa, launch color changer"
+          ],
+          "keywords": [
+            "buttons",
+            "games"
+          ],
+          "name": "color changer",
+          "description": "A Color Changer skill that showcases Echo Buttons functionality. The skill asks users to use to buttons, register them with the skill, and then use their voice to change the light animations playing on the buttons."
+        }
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "Open the skill and follow the prompts. You will need two Echo buttons to test.",
+      "category": "GAMES",
+      "distributionCountries": [],
+      "gadgetSupport": {
+        "requirement": "REQUIRED",
+        "numPlayersMin": 2,
+        "numPlayersMax": 2,
+        "minGadgetButtons": 2,
+        "maxGadgetButtons": 2
+      }
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "sourceDir": "lambda/custom"
+        },
+        "interfaces": [
+          {
+            "type": "GAME_ENGINE"
+          },
+          {
+            "type": "GADGET_CONTROLLER"
+          }
+        ]
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "usesPersonalInfo": false,
+      "isChildDirected": false,
+      "isExportCompliant": true,
+      "containsAds": false
+    }
+  }
+}
