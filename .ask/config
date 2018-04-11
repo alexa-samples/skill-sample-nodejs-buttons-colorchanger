@@ -1,0 +1,19 @@
+{
+  "deploy_settings": {
+    "diamond-devs": {
+      "skill_id": "",
+      "was_cloned": true,
+      "merge": {
+        "manifest": {
+          "apis": {
+            "custom": {
+              "endpoint": {
+                "uri": "ask-custom-ColorChangerSkill"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

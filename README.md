@@ -20,16 +20,17 @@ This sample skill uses:
 ## Table of Contents
 * [Skill Flow](#skill-flow)
 * [Preparation](#preparation)
-* [Step 1 - Upload the Deployment Package to AWS Lambda](#step-1-upload-the-deployment-package-to-aws-lambda)
-* [Step 2 - Find the ARN of the Lambda function](#step-2-find-the-arn-of-the-lambda-function)
-* [Step 3 - Create the Skill](#step-3-create-the-skill)
-* [Step 4 - Create an Interaction Model](#step-4-create-an-interaction-model)
-* [Step 5 - Select Gadget Interfaces](#step-5-select-gadget-interfaces)
-* [Step 6 - Enter the Endpoint](#step-6-enter-the-endpoint)
-* [Step 7 - Enter Publishing Information](#step-7-enter-publishing-information)
-* [Step 8 - Enter Privacy and Compliance Information](#step-8-enter-privacy-and-compliance-information)
-* [Step 9 - Enable the Skill in the Alexa App](#step-9-enable-the-skill-in-the-alexa-app)
-* [Step 10 - Invoke the Skill](#step-10-invoke-the-skill)
+* [Step 1 - Setup Local Development Environment](#step-1-setup-local-development-environment)
+* [Step 2 - Upload the Deployment Package to AWS Lambda](#step-2-upload-the-deployment-package-to-aws-lambda)
+* [Step 3 - Find the ARN of the Lambda function](#step-3-find-the-arn-of-the-lambda-function)
+* [Step 4 - Create the Skill](#step-4-create-the-skill)
+* [Step 5 - Create an Interaction Model](#step-5-create-an-interaction-model)
+* [Step 6 - Select Gadget Interfaces](#step-6-select-gadget-interfaces)
+* [Step 7 - Enter the Endpoint](#step-7-enter-the-endpoint)
+* [Step 8 - Enter Publishing Information](#step-8-enter-publishing-information)
+* [Step 9 - Enter Privacy and Compliance Information](#step-9-enter-privacy-and-compliance-information)
+* [Step 10 - Enable the Skill in the Alexa App](#step-10-enable-the-skill-in-the-alexa-app)
+* [Step 11 - Invoke the Skill](#step-11-invoke-the-skill)
 
 
 ## Skill Flow
@@ -47,122 +48,69 @@ Before you create the Color Changer skill, you must take the following steps:
 * **Create an Amazon developer account** – If you don't already have an Amazon developer account, go to the [developer portal]("https://developer.amazon.com/alexa/console/ask) and select **Sign In** in the upper right to create a free account.
 * **Sign up for AWS** – If you haven't already, sign up for AWS by going to [AWS Free Tier](https://aws.amazon.com/free). For most developers, the [AWS Lambda Free Tier](https://aws.amazon.com/lambda/pricing/) and [Amazon DynamoDB Free Tier](https://aws.amazon.com/dynamodb/pricing/) are sufficient for the function that supports an Alexa skill.
 * **Get Echo Buttons** – This skill requires two [Echo Buttons](https://www.amazon.com/Echo-Buttons-Alexa-Gadget-Pack/dp/B072C4KCQH). 
+* This skill sample uses **NodeJS v6**. If you do not have NodeJS already installed on your computer, install it now. The simplest way to install NodeJS is to use [nvm](https://nodejs.org/en/download/package-manager/#nvm) a Node Version Manager command line tool, with instructions here: https://nodejs.org/en/download/package-manager/#nvm
 
+## Step 1-Setup Local Development Environment 
+In this step, you will get a copy of the sample skill code on your local computer and prepare a deployment package (a zip file that you create out of the Color Changer skill code) to upload to Lambda in the next step.
 
-## Step 1-Upload the Deployment Package to AWS Lambda
-In this step, you upload the deployment package (a zip file that you create out of the Color Changer code) to AWS Lambda. Later, when you set up the skill in the developer portal, you will specify that this function is the endpoint for the skill.
+1. Get a local copy of the Color Changer skill code from [alexa-sample-nodejs-buttons-colorchanger](https://github.com/alexa/skill-sample-nodejs-buttons-colorchanger) GitHub. You may clone the repository locally, or simply download and unzip the sample code from GitHub. 
+2. After downloading the code, you will have to run `npm install` in the **skill-sample-nodejs-buttons-colorchanger/lambda/custom** folder to download and install the NodeJS package dependencies that this skill uses such as the [Alexa SDK](https://github.com/alexa/alexa-skills-kit-sdk-for-nodejs). NPM will be available on your computer if you have NodeJS installed (see the [Preparation](#preparation) step above).  
+3. Zip up all of the files that are in the **skill-sample-nodejs-buttons-colorchanger/lambda/custom** folder. This zip file will be your deployment package. Be sure to only zip the files and folders that are *inside* the **skill-sample-nodejs-buttons-colorchanger/lambda/custom** folder, not the **skill-sample-nodejs-buttons-colorchanger/lambda/custom** folder itself. AWS Lambda must be able to find the **index.js** file at the root of the zip file.
 
-1. Download and unzip the [alexa-sample-nodejs-buttons-colorchanger](https://github.com/alexa/skill-sample-nodejs-buttons-colorchanger) GitHub repository, and then zip up all of the files that are in the **skill-sample-nodejs-buttons-colorchanger\lambda\custom** folder. This zip file will be your deployment package. Be sure to only zip the files and folders that are *inside* the **skill-sample-nodejs-buttons-colorchanger\lambda\custom** folder, not the **skill-sample-nodejs-buttons-colorchanger\lambda\custom** folder itself. AWS Lambda must be able to find the **index.js** file at the root of the zip file.  
-2. Sign in to the [AWS Management Console](https://console.aws.amazon.com/console/home) and navigate to the [AWS Lambda console](https://console.aws.amazon.com/lambda/home), which is located under **Compute** services.
-3. Select **Create function**.
-4. Make sure that you are on the **Author from scratch** page.
-5. For **Name**, enter **ColorChanger**.
-6. For **Runtime**, select **Node.js 6.10**.
-7. For **Role**, select **Create a custom role**. This will take you to the IAM console.
-8. In the IAM console, expand **View Policy Document**.
-9. Click **Edit**, click **OK** in the dialog box, and then replace the entire policy with the following JSON:
+## Step 2-Upload the Deployment Package to AWS Lambda
+In this step, you upload the deployment package to AWS Lambda. Later, when you set up the skill in the developer portal, you will specify that this function is the endpoint for the skill.
+
+1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/console/home) and navigate to the [AWS Lambda console](https://console.aws.amazon.com/lambda/home), which is located under **Compute** services.
+2. Select **Create function**.
+3. Make sure that you are on the **Author from scratch** page.
+4. For **Name**, enter **ColorChanger**.
+5. For **Runtime**, select **Node.js 6.10**.
+6. For **Role**, select **Create a custom role**. This will take you to the IAM console.
+7. In the IAM console, expand **View Policy Document**.
+8. Click **Edit**, click **OK** in the dialog box, and then replace the entire policy with the following JSON (_the dynamodb permissions in the policy below are only needed if you choose to enable session attributes to be stored in DynamoDB, in the skill code (index.js)_):
 ```
 {
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Effect": "Allow",
             "Action": [
-                "dynamodb:*",
-                "dax:*",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:DeregisterScalableTarget",
-                "application-autoscaling:DescribeScalableTargets",
-                "application-autoscaling:DescribeScalingActivities",
-                "application-autoscaling:DescribeScalingPolicies",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DeleteAlarms",
-                "cloudwatch:DescribeAlarmHistory",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:DescribeAlarmsForMetric",
-                "cloudwatch:GetMetricStatistics",
-                "cloudwatch:ListMetrics",
-                "cloudwatch:PutMetricAlarm",
-                "datapipeline:ActivatePipeline",
-                "datapipeline:CreatePipeline",
-                "datapipeline:DeletePipeline",
-                "datapipeline:DescribeObjects",
-                "datapipeline:DescribePipelines",
-                "datapipeline:GetPipelineDefinition",
-                "datapipeline:ListPipelines",
-                "datapipeline:PutPipelineDefinition",
-                "datapipeline:QueryObjects",
-                "ec2:DescribeVpcs",
-                "ec2:DescribeSubnets",
-                "ec2:DescribeSecurityGroups",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents",
+                "logs:CreateLogStream",
                 "iam:GetRole",
-                "iam:ListRoles",
-                "sns:CreateTopic",
-                "sns:DeleteTopic",
-                "sns:ListSubscriptions",
-                "sns:ListSubscriptionsByTopic",
-                "sns:ListTopics",
-                "sns:Subscribe",
-                "sns:Unsubscribe",
-                "sns:SetTopicAttributes",
-                "lambda:CreateFunction",
-                "lambda:ListFunctions",
-                "lambda:ListEventSourceMappings",
-                "lambda:CreateEventSourceMapping",
-                "lambda:DeleteEventSourceMapping",
-                "lambda:GetFunctionConfiguration",
-                "lambda:DeleteFunction"
+                "iam:ListRoles",  
+                "dynamodb:GetItem",
+                "dynamodb:PutItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:Scan",
+                "dynamodb:Query",
+                "dynamodb:UpdateItem",
+                "dynamodb:CreateTable",                
+                "dynamodb:DescribeTable"
             ],
-            "Effect": "Allow",
             "Resource": "*"
-        },
-        {
-            "Action": [
-                "iam:PassRole"
-            ],
-            "Effect": "Allow",
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "application-autoscaling.amazonaws.com",
-                        "dax.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateServiceLinkedRole"
-            ],
-            "Resource": "arn:aws:iam::*:role/aws-service-role/replication.dynamodb.amazonaws.com/AWSServiceRoleForDynamoDBReplication",
-            "Condition": {
-                "StringLike": {
-                    "iam:AWSServiceName": "replication.dynamodb.amazonaws.com"
-                }
-            }
-         }
+        }        
       ]
 }
 ```
-10. At the bottom right of the page, click the **Allow** button. This will take you back to the Lambda console.
-11. Back in the Lambda console, for **Role**, select **Choose an Existing Role**.
-12. For **Existing Role**, select the role you just created.
-13. In the lower right, click the **Create function** button. The function might take a moment to create.
-14. Scroll down a bit. Under the **Function code** section, for **Code entry** type, select **Upload a .ZIP** file. Then click **Upload** and choose the **ColorChanger** zip file that you created in the first step.
-15. For **Runtime**, select **Node.js 6.10**.
-16. At the top of the page, under the **Designer** section, under **Add triggers**, select **Alexa Skills Kit**. 
-17. At the bottom of the page, under **Configure Triggers**, select **Disable** for **Skill ID verification**.
-18. At the bottom of the page, click **Add**.
-19. At the top of the page, click **Save**. 
+9. At the bottom right of the page, click the **Allow** button. This will take you back to the Lambda console.
+10. Back in the Lambda console, for **Role**, select **Choose an Existing Role**.
+11. For **Existing Role**, select the role you just created.
+12. In the lower right, click the **Create function** button. The function might take a moment to create.
+13. Scroll down a bit. Under the **Function code** section, for **Code entry** type, select **Upload a .ZIP** file. Then click **Upload** and choose the **ColorChanger** zip file that you created in the first step.
+14. For **Runtime**, select **Node.js 6.10**.
+15. At the top of the page, under the **Designer** section, under **Add triggers**, select **Alexa Skills Kit**. 
+16. At the bottom of the page, under **Configure Triggers**, select **Disable** for **Skill ID verification**.
+17. At the bottom of the page, click **Add**.
+18. At the top of the page, click **Save**. 
 
-## Step 2-Find the ARN of the Lambda function
+## Step 3-Find the ARN of the Lambda function
 In this step, you find the Amazon Resource Name (ARN) of the Lambda function that you just created. The ARN serves as the ID of the function. You can find the ARN at the top right of the Color Changer function page in the AWS Lambda console. The ARN will look something like `arn:aws:lambda:us-east-1:012345678910:function:ColorChanger`.
 
 Copy the ARN. Later, when you set up the Color Changer skill in the developer portal, you will provide this ARN as the endpoint for the skill.
 
-## Step 3-Create the Skill 
+## Step 4-Create the Skill 
 
 Next, create the skill in the developer console by using the following steps:
 
@@ -173,7 +121,7 @@ Next, create the skill in the developer console by using the following steps:
 
 ***Important: If you get an 'unspecified error' when performing any of the remaining steps, try logging out and then logging back in to the developer console.***
 
-## Step 4-Create an Interaction Model 
+## Step 5-Create an Interaction Model 
 
 Continuing from the previous step, do the following:
 
@@ -211,7 +159,7 @@ Continuing from the previous step, do the following:
    13. At the top of the page, select **Save Model**.
    14. Select **Build Model**. The model might take a moment to build.
 
-## Step 5-Select Gadget Interfaces
+## Step 6-Select Gadget Interfaces
 
 Continuing from the previous step, do the following:
 
@@ -219,7 +167,7 @@ Continuing from the previous step, do the following:
 2. In the **Alexa Gadget** row of the interface list, select **Gadget Controller** and **Game Engine**.
 3. At the top of the page, select **Save Interfaces**.
 
-## Step 6-Enter the Endpoint
+## Step 7-Enter the Endpoint
 
 Continuing from the previous step, do the following:
 
@@ -228,7 +176,7 @@ Continuing from the previous step, do the following:
 3. In the **Default Region** field, paste the ARN of the Lambda function that you created in an earlier step. Leave the other options at their default values.
 4. At the top of the page, select **Save Endpoints**.
 
-## Step 7-Enter Publishing Information
+## Step 8-Enter Publishing Information
 
 Continuing from the previous step, do the following:
 
@@ -242,7 +190,7 @@ Continuing from the previous step, do the following:
 8. For **Category**, select **Games**.
 9. At the bottom of the page, select **Save and continue**.
 
-## Step 8-Enter Privacy and Compliance Information
+## Step 9-Enter Privacy and Compliance Information
 
 Continuing from the previous step, do the following:
 
@@ -257,7 +205,7 @@ Continuing from the previous step, do the following:
 
    You should now be on the **Submission** page, which will tell you that fixes are required (to add icons). You don't need to add icons now because you can test the skill without submitting it for certification.
 
-## Step 9-Enable the Skill in the Alexa App
+## Step 10-Enable the Skill in the Alexa App
 Your Color Changer skill is in the development state and available for you to test with your Amazon Echo device and your Echo Buttons. First, you must ensure that the skill is enabled in the Alexa app. To check this, do the following:
 
 1. Go to the web version of the Alexa app ([alexa.amazon.com](https://alexa.amazon.com/)) and sign in with your Amazon developer account.
@@ -267,7 +215,7 @@ Your Color Changer skill is in the development state and available for you to te
 5. Select the skill. If the skill is already enabled, the button next to the skill name says **DISABLE SKILL**. In that case, you are finished with this step. If the button says **ENABLE**, then select that button.
 
 
-## Step 10-Invoke the Skill
+## Step 11-Invoke the Skill
 Pair your Echo Buttons to your Amazon Echo device, and then invoke the skill by saying "***Alexa, open Color Changer***". The skill should run as described in the [skill flow](#skill-flow).
 
 
