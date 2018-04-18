@@ -1,6 +1,6 @@
 {
   "deploy_settings": {
-    "diamond-devs": {
+    "default": {
       "skill_id": "",
       "was_cloned": true,
       "merge": {
