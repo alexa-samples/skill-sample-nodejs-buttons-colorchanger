@@ -15,7 +15,6 @@
 
 'use strict';
 
-const Alexa = require('alexa-sdk');
 // Gadget Directives Builder
 const GadgetDirectives = require('util/gadgetDirectives.js');
 // Basic Animation Helper Library
@@ -53,7 +52,7 @@ module.exports = {
     // Define animations to be played on button down and button up that are like the default animations on the buttons
     // We'll use these animations when resetting play state
     // See: https://developer.amazon.com/docs/gadget-skills/control-echo-buttons.html#animate
-    DEFUALT_ANIMATIONS: {
+    DEFAULT_ANIMATIONS: {
         'ButtonDown' : {
             'targetGadgets': [],
             'animations': BasicAnimations.FadeOutAnimation(1, 'blue', 200)

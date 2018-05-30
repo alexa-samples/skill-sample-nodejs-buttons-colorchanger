@@ -1,5 +1,5 @@
 'use strict';
-
+           
 const requiredParam = function (param) {
   const requiredParamError = new Error(
    `Required parameter, "${param}" is missing.`

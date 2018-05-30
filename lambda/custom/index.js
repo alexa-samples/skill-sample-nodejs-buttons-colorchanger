@@ -15,7 +15,7 @@
 
 'use strict';
 
-const Alexa = require('alexa-sdk');
+const Alexa = require('ask-sdk-core');
 // Gadget Directives Builder
 const GadgetDirectives = require('util/gadgetDirectives.js');
 // Basic Animation Helper Library
@@ -23,137 +23,363 @@ const BasicAnimations = require('button_animations/basicAnimations.js');
 // import the skill settings constants 
 const Settings = require('settings.js');
 
+const RollCall = require('rollcall.js');
+const GamePlay = require('gameplay.js');
 
-const RollCallModeIntentHandlers = require('rollcall.js');
-const PlayModeIntentHandlers = require('gameplay.js');
-const ExitModeIntentHandlers = require('exitstage.js');
+let skill;
+ 
+exports.handler = function (event, context) {
+     // Prints Alexa Event Request to CloudWatch logs for easier debugging
+     console.log(`===EVENT===${JSON.stringify(event)}`);
+     if (!skill) {
+     skill = Alexa.SkillBuilders.custom()
 
-exports.handler = function(event, context, callback) {
-    console.log("===EVENT=== \n" + JSON.stringify(event)); // Prints Alexa Event Request to CloudWatch logs for easier debugging
-    
-    const alexa = Alexa.handler(event, context);
-    alexa.appId = '';
+         .addRequestHandlers(
+             GlobalHandlers.LaunchRequestHandler,
+             GlobalHandlers.GameEngineInputHandler,
+             GlobalHandlers.HelpIntentHandler,
+             GlobalHandlers.StopIntentHandler,
+             GlobalHandlers.YesIntentHandler,
+             GlobalHandlers.NoIntentHandler,
+             GlobalHandlers.SessionEndedRequestHandler,
+             GlobalHandlers.DefaultHandler
+         )
+         .addRequestInterceptors(GlobalHandlers.RequestInterceptor)
+         .addResponseInterceptors(GlobalHandlers.ResponseInterceptor)
+         .addErrorHandlers(GlobalHandlers.ErrorHandler)
+         .create();
+     }
 
-    // you may enable this to persist Attributes between session to a DynamoDB table called 'ColorChangerState'
-    // if you enable DynamoDB persistance for your attributes, you must ensure access to DynamoDB from your skill
-    // you can un-comment the next line to enable this functionality; the skill should work similarly in both cases
-    // alexa.dynamoDBTableName = 'ColorChangerState';
-
-    alexa.registerHandlers(globalHandlers, RollCallModeIntentHandlers, PlayModeIntentHandlers, ExitModeIntentHandlers);
-    alexa.execute();
-};
+     // TODO: show example of setting up DynamoDB persistance using new Alexa SDK v2
+ 
+     return skill.invoke(event,context);
+ }
 
 // ***********************************************************************
 //   Global Handlers
 //     set up some handlers for events that will have to be handled
 //     regardless of what state the skill is in
 // ***********************************************************************
-const globalHandlers = {
-    'GlobalHelpHandler': function() {
-        console.log('globalHandlers::GlobalHelpHandler');
-        
-        if (this.attributes.CurrentInputHandlerID) {
-            // if there is an active input handler, stop it so it doesn't interrup Alexa speaking the Help prompt
-            // see: https://developer.amazon.com/docs/gadget-skills/receive-echo-button-events.html#stop
-            this.response._addDirective(GadgetDirectives.stopInputHandler({ 
-                'id': this.attributes.CurrentInputHandlerID
-            }));
-        }
+const GlobalHandlers = {
+    LaunchRequestHandler: {
+        canHandle(handlerInput) {
+            let { request } = handlerInput.requestEnvelope;
+            console.log("LaunchRequestHandler: checking if it can handle " + request.type);
+            return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+        },
+        handle(handlerInput) {
+            console.log("LaunchRequestHandler: handling request");
 
-        let reprompt = "", 
-            outputSpeech = "";
-        if (this.attributes.isRollCallComplete === true) {
-            // roll call is complete - if the user asks for help at this stage, explain about picking a color, or how to quit
-            reprompt = "Pick a color to test your buttons: red, blue, or green. Or say cancel or exit to quit. ";
-            outputSpeech = "Now that you have registered two buttons, you can pick a color to show when the buttons are pressed. "
-                         + "Select one of the following colors: red, blue, or green. "
-                         + "If you do not wish to continue, you can say exit. "
-                         + reprompt;
-            this.response.speak(outputSpeech).listen(reprompt);
-        } else {            
-            // the user hasn't completed roll call - the help message should explain that roll call needs to be completed and ask the user if they wish to continue
-            reprompt = "You can say yes to continue, or no or exit to quit.";
-            outputSpeech = "You will need two Echo buttons to use this skill. "
-                         + "Each of the two buttons you plan to use must be pressed for the skill to register them. "
-                         + "Would you like to continue and register two Echo buttons? "
-                         + reprompt;
-            this.response.speak(outputSpeech).listen(reprompt);
-        
-            // at this point, we're essentially waiting for user to decide whether to continue (say 'Yes', or quit - say 'No' or 'Cancel')
-            this.attributes.expectingEndSkillConfirmation = true;
-        }
-                
-        this.emit('GlobalResponseReady', { 'openMicrophone': true });
-    },
-    'GlobalStopHandler': function() {
-        console.log('globalHandlers::GlobalStopHandler');
-        
-        this.response.speak('Good Bye!');  
-
-        // setting shouldEndSession = true -  lets Alexa know that the skill is done      
-        this.handler.response.response.shouldEndSession = true;
-
-        this.emit('GlobalSessionEndedRequestHandler');
-    },
-    'GlobalDefaultHandler': function() {        
-        console.log("globalHandlers::GlobalDefaultHandler");
-        // this will handle requests that don't otherwise have a designated handler
-
-        if (this.event.request.type === 'System.ExceptionEncountered') {
-            // there is not much we can do if an error occurs
-            // see:  https://developer.amazon.com/docs/alexa-voice-service/system.html#exceptionencountered
-            console.log(JSON.stringify(this.event.request.error));
-        } else {
-            // otherwise, try to let the user know that we couldn't understand the request and prompt for what to do next
-            const reprompt = "Please say again, or say help if you're not sure what to do.";
-            const outputSpeech = "Sorry, I didn't get that. " + reprompt;
-
-            this.response.speak(outputSpeech).listen(reprompt);
-
-            this.emit('GlobalResponseReady', { 'openMicrophone': true });
+            return RollCall.NewSession(handlerInput);
         }
     },
-    'GlobalSessionEndedRequestHandler': function() {
-        console.log('globalHandlers::GlobalSessionEndedRequestHandler');
-        
-        // clean up attributes    
-        delete this.attributes.STATE;
-        delete this.attributes.buttonCount;
-        delete this.attributes.isRollCallComplete;
-        
-        // setting shouldEndSession = fase  -  lets Alexa know that the skill is done
-        // see: https://developer.amazon.com/docs/gadget-skills/receive-voice-input.html
-        this.handler.response.response.shouldEndSession = true;
+    ErrorHandler: {
+        canHandle(handlerInput, error) {
+            let { request } = handlerInput.requestEnvelope;
+            console.log("Global.ErrorHandler: checking if it can handle " 
+                + request.type + ": [" + error.name + "] -> " + !!error.name);
+            return !!error.name;     //error.name.startsWith('AskSdk');
+        },
+        handle(handlerInput, error) {
+            console.log("Global.ErrorHandler: error = " + error.message);
 
-        this.handler.state = '';
-
-        // log the response to CloudWatch to make it easier to debug the skill
-        console.log("==Response== " + JSON.stringify(this.handler.response));
-        // we emit the `:responseReady` event, although in some cases, suchas for actual `SessionEndedRequests` the response will be ignored
-        this.emit(':responseReady');
-    },
-    'GlobalResponseReady': function({
-        openMicrophone = false
-    } = {}) {
-        console.log('globalHandlers::GlobalResponseReady (openMicrophone = ' + openMicrophone + ')');
-        // we trigger the `GlobalResponseReady` event from other handlers - the openMicrophone parameter controls the microphone behavior
-
-        if (openMicrophone) {
-            // setting shouldEndSession = fase  -  lets Alexa know that we're looking for an answer from the user 
-            // see: https://developer.amazon.com/docs/gadget-skills/receive-voice-input.html#open
-            //      https://developer.amazon.com/docs/gadget-skills/keep-session-open.html
-            this.handler.response.response.shouldEndSession = false;
-        } else {
-            // deleting shouldEndSession will keep the skill session going, while the input handler is active, waiting for button presses
-            // see: https://developer.amazon.com/docs/gadget-skills/keep-session-open.html
-            delete this.handler.response.response.shouldEndSession;
+            return handlerInput.responseBuilder
+                .speak('An error was encountered while handling your request. Try again later')
+                .getResponse();
         }
-
-        // log the response to CloudWatch to make it easier to debug the skill
-        console.log("==Response== " + JSON.stringify(this.handler.response));
-        this.emit(':responseReady');
     },
-    'SessionEndedRequest': function() {        
-        this.emit('GlobalSessionEndedRequestHandler');
+    HelpIntentHandler: {
+        canHandle(handlerInput) {
+            const { request } = handlerInput.requestEnvelope;
+            const intentName = request.intent ? request.intent.name : '';
+            console.log("Global.HelpIntentHandler: checking if it can handle " 
+                + request.type + " for " + intentName);
+            return request.type === 'IntentRequest'
+                && intentName === 'AMAZON.HelpIntent';
+        },
+        handle(handlerInput) {
+            console.log("Global.HelpIntentHandler: handling request for help");
+
+            const { attributesManager } = handlerInput;
+            const sessionAttributes = attributesManager.getSessionAttributes();
+            const ctx = attributesManager.getRequestAttributes();
+
+            if (sessionAttributes.CurrentInputHandlerID) {
+                // if there is an active input handler, stop it so it doesn't interrup Alexa speaking the Help prompt
+                // see: https://developer.amazon.com/docs/gadget-skills/receive-echo-button-events.html#stop
+                ctx.directives.push(GadgetDirectives.stopInputHandler({ 
+                    'id': sessionAttributes.CurrentInputHandlerID
+                }));
+            }
+
+            let reprompt = "", 
+                outputSpeech = "";
+            if (sessionAttributes.isRollCallComplete === true) {
+                // roll call is complete
+                ctx.reprompt = ["Pick a color to test your buttons: red, blue, or green. "];
+                ctx.reprompt.push(" Or say cancel or exit to quit. ");
+
+                ctx.outputSpeech = ["Now that you have registered two buttons, "];
+                ctx.outputSpeech.push("you can pick a color to show when the buttons are pressed. ");
+                ctx.outputSpeech.push("Select one of the following colors: red, blue, or green. ");                
+                ctx.outputSpeech.push("If you do not wish to continue, you can say exit. ");                
+            } else {            
+                // the user hasn't yet completed roll call
+                ctx.reprompt = ["You can say yes to continue, or no or exit to quit."];
+                ctx.outputSpeech = ["You will need two Echo buttons to to use this skill. "];
+                ctx.outputSpeech.push("Each of the two buttons you plan to use ");
+                ctx.outputSpeech.push("must be pressed for the skill to register them. ");
+                ctx.outputSpeech.push("Would you like to continue and register two Echo buttons? ");
+                                
+                sessionAttributes.expectingEndSkillConfirmation = true;
+            }  
+            
+            return handlerInput.responseBuilder.getResponse();
+        }
+    },
+    StopIntentHandler: {
+        canHandle(handlerInput) {
+            const { request } = handlerInput.requestEnvelope;
+            const intentName = request.intent ? request.intent.name : '';
+            console.log("Global.StopIntentHandler: checking if it can handle " 
+                + request.type + " for " + intentName);
+            return request.type === 'IntentRequest'
+                && intentName === 'AMAZON.StopIntent' || intentName === 'AMAZON.CancelIntent';
+        },
+        handle(handlerInput) {
+            console.log("Global.StopIntentHandler: handling request");
+            handlerInput.responseBuilder.speak('Good Bye!')
+            GlobalHandlers.SessionEndedRequestHandler.handle(handlerInput);
+        }
+    },
+    GameEngineInputHandler: {
+        canHandle(handlerInput) {
+            let { request } = handlerInput.requestEnvelope;
+            console.log("Global.GameEngineInputHandler: checking if it can handle " 
+                + request.type);
+            return request.type === 'GameEngine.InputHandlerEvent';
+        },
+        handle(handlerInput) { 
+            let { attributesManager } = handlerInput;
+            let request = handlerInput.requestEnvelope.request;
+            const sessionAttributes = attributesManager.getSessionAttributes();
+            const ctx = attributesManager.getRequestAttributes();
+            if (request.originatingRequestId !== sessionAttributes.CurrentInputHandlerID) {
+                console.log("Global.GameEngineInputHandler: stale input event received -> " 
+                           +"received event from " + request.originatingRequestId 
+                           +" (was expecting " + sessionAttributes.CurrentInputHandlerID + ")");
+                ctx.openMicrophone = false;
+                return handlerInput.responseBuilder.getResponse();
+            }
+
+            var gameEngineEvents = request.events || [];
+            for (var i = 0; i < gameEngineEvents.length; i++) {
+                // In this request type, we'll see one or more incoming events
+                // that correspond to the StartInputHandler we sent above.
+                switch (gameEngineEvents[i].name) {
+                    case 'first_button_checked_in':
+                        ctx.gameInputEvents = gameEngineEvents[i].inputEvents;
+                        return RollCall.HandleFirstButtonCheckIn(handlerInput);
+                    case 'second_button_checked_in':
+                        ctx.gameInputEvents = gameEngineEvents[i].inputEvents;
+                        return RollCall.HandleSecondButtonCheckIn(handlerInput);
+                    case 'button_down_event':
+                        if (sessionAttributes.state == settings.SKILL_STATES.PLAY_MODE) {
+                            ctx.gameInputEvents = gameEngineEvents[i].inputEvents;
+                            return GamePlay.HandleButtonPressed(handlerInput);
+                        }
+                        break;
+                    case 'timeout':
+                        if (sessionAttributes.state == settings.SKILL_STATES.ROLL_CALL_MODE) {                    
+                            return RollCall.HandleTimeout(handlerInput);
+                        } else if (sessionAttributes.state == settings.SKILL_STATES.PLAY_MODE) {
+                            return GamePlay.HandleTimeout(handlerInput);
+                        }
+                        break;
+                }
+            }
+            return handlerInput.responseBuilder.getResponse();
+        }
+    },
+    YesIntentHandler: {
+        canHandle(handlerInput) {
+            let { request } = handlerInput.requestEnvelope;
+            let intentName = request.intent ? request.intent.name : '';
+            console.log("Global.YesIntentHandler: checking if it can handle " 
+                + request.type + " for " + intentName);
+            return request.type === 'IntentRequest'
+                && intentName === 'AMAZON.YesIntent';
+        },
+        handle(handlerInput) {
+            console.log("Global.YesIntentHandler: handling request");
+            let { attributesManager } = handlerInput;         
+            const sessionAttributes = attributesManager.getSessionAttributes();
+            const ctx = attributesManager.getRequestAttributes();
+            const state = sessionAttributes.state || '';
+            // ---- Hanlde "Yes" when we're in the context of Roll Call ...
+            if (state === Settings.SKILL_STATES.ROLL_CALL_MODE 
+                && sessionAttributes.expectingEndSkillConfirmation === true) {
+                // pass control to the StartRollCall event handler to restart the rollcall process
+                ctx.outputSpeech = ["Ok. Press the first button, wait for confirmation,"];
+                ctx.outputSpeech.push("then press the second button.");
+                ctx.outputSpeech.push(Settings.WAITING_AUDIO);
+                ctx.timeout = 30000;
+                return RollCall.StartRollCall(handlerInput);
+            } else if (state === Settings.SKILL_STATES.EXIT_MODE 
+                && sessionAttributes.expectingEndSkillConfirmation === true) {
+                // pass control to the StartRollCall event handler to restart the rollcall process
+                ctx.reprompt = ["Pick a different color, red, blue, or green."];
+                ctx.outputSpeech = ["Ok, let's keep going."];
+                ctx.outputSpeech.push(ctx.reprompt);
+                ctx.openMicrophone = true;
+                sessionAttributes.state = Settings.SKILL_STATES.PLAY_MODE;
+                return handlerInput.responseBuilder.getResponse();
+            } else if (state === Settings.SKILL_STATES.EXIT_MODE) {
+                // ---- Hanlde "Yes", if we're in EXIT_MODE, but not expecting exit confirmation
+                return GlobalHandlers.DefaultHandler.handle(handlerInput);
+            } else {
+                // ---- Hanlde "Yes" in other cases .. just fall back on the help intent
+                return GlobalHandlers.HelpIntentHandler.handle(handlerInput);
+            }
+        }
+    },
+    NoIntentHandler: {
+        canHandle(handlerInput) {
+            let { request } = handlerInput.requestEnvelope;
+            let intentName = request.intent ? request.intent.name : '';
+            console.log("Global.NoIntentHandler: checking if it can handle " 
+                + request.type + " for " + intentName);
+            return request.type === 'IntentRequest'
+                && intentName === 'AMAZON.NoIntent';
+        },
+        handle(handlerInput) {
+            console.log("Global.NoIntentHandler: handling request");
+            let { attributesManager } = handlerInput;
+            const sessionAttributes = attributesManager.getSessionAttributes();
+            const state = sessionAttributes.state || '';
+            
+            // ---- Hanlde "No" when we're in the context of Roll Call ...
+            if (state === Settings.SKILL_STATES.ROLL_CALL_MODE 
+                && sessionAttributes.expectingEndSkillConfirmation === true) {
+                // if user says No when prompted whether they will to continue with rollcall then just exit
+                return GlobalHandlers.StopIntentHandler(handlerInput);
+            } if (state === Settings.SKILL_STATES.EXIT_MODE 
+                && sessionAttributes.expectingEndSkillConfirmation === true) { 
+                return GlobalHandlers.SessionEndedRequestHandler(handlerInput);
+            } else if (state === Settings.SKILL_STATES.EXIT_MODE) {
+                // ---- Hanlde "No" in other cases .. just fall back on the help intent
+                return GlobalHandlers.DefaultHandler.handle(handlerInput);
+            } else {
+                // ---- Hanlde "No" in other cases .. just fall back on the help intent
+                return GlobalHandlers.HelpIntentHandler.handle(handlerInput);
+            }
+        }
+    },
+    DefaultHandler: {
+        canHandle(handlerInput) {
+            let { request } = handlerInput.requestEnvelope;
+            let intentName = request.intent ? request.intent.name : '';
+            console.log("Global.DefaultHandler: checking if it can handle " 
+                + request.type + " for " + intentName);
+            return true;
+        },
+        handle(handlerInput) {            
+            console.log("Global.DefaultHandler: handling request");
+            if (handlerInput.requestEnvelope.request.type === 'IntentRequest'
+                && handlerInput.requestEnvelope.request.intent.name === 'colorIntent') {
+                return GamePlay.ColorIntentHandler(handlerInput);
+            }
+ 
+            const ctx = handlerInput.attributesManager.getRequestAttributes();
+ 
+            // otherwise, try to let the user know that we couldn't understand the request 
+            //  and prompt for what to do next
+            ctx.reprompt = ["Please say again, or say help if you're not sure what to do."];
+            ctx.outputSpeech = ["Sorry, I didn't get that. " + ctx.reprompt[0]];
+            
+            ctx.openMicrophone = true;        
+            return handlerInput.responseBuilder.getResponse();
+        }
+    },
+    SessionEndedRequestHandler: {
+        canHandle(handlerInput) {
+            return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
+        },
+        handle(handlerInput) {
+            console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
+            let response = handlerInput.responseBuilder.getResponse();
+            response.shouldEndSession = true;
+            return response;
+        },
+    },
+    RequestInterceptor: {
+        process(handlerInput) {  
+            console.log("Global.RequestInterceptor: pre-processing response");
+            let {attributesManager, responseBuilder} = handlerInput;
+            let ctx = attributesManager.getRequestAttributes();
+            ctx.directives = [];
+            ctx.outputSpeech = [];
+            ctx.reprompt = [];
+            console.log("Global.RequestInterceptor: pre-processing response complete");
+        }
+    },
+    ResponseInterceptor: {
+        process(handlerInput) {        
+            let {attributesManager, responseBuilder} = handlerInput;                        
+            const ctx = attributesManager.getRequestAttributes();   
+            console.log("Global.ResponseInterceptor: post-processing response " + JSON.stringify(ctx)); 
+            
+            if (ctx.outputSpeech.length > 0) {                
+                let outputSpeech = ctx.outputSpeech.join(' ');
+                console.log("Global.ResponseInterceptor: adding " 
+                    + ctx.outputSpeech.length + " speech parts"); 
+                responseBuilder.speak(outputSpeech);
+            }
+            if (ctx.reprompt.length > 0) {         
+                console.log("Global.ResponseInterceptor: adding " 
+                    + ctx.outputSpeech.length + " speech reprompt parts");        
+                let reprompt = ctx.reprompt.join(' ');
+                responseBuilder.reprompt(reprompt);
+            }
+            let response = responseBuilder.getResponse();
+            
+            if ('openMicrophone' in ctx) {
+                if (ctx.openMicrophone) {
+                    // setting shouldEndSession = fase  -  lets Alexa know that we want an answer from the user 
+                    // see: https://developer.amazon.com/docs/gadget-skills/receive-voice-input.html#open
+                    //      https://developer.amazon.com/docs/gadget-skills/keep-session-open.html
+                    response.shouldEndSession = false;
+                    console.log("Global.ResponseInterceptor: request to open microphone -> shouldEndSession = false"); 
+                } else {
+                    // deleting shouldEndSession will keep the skill session going, 
+                    //  while the input handler is active, waiting for button presses
+                    // see: https://developer.amazon.com/docs/gadget-skills/keep-session-open.html
+                    delete response.shouldEndSession;
+                    console.log("Global.ResponseInterceptor: request to open microphone -> delete shouldEndSession"); 
+                }
+            }
+
+            if (Array.isArray(ctx.directives)) {   
+                console.log("Global.ResponseInterceptor: processing " + ctx.directives.length + " custom directives ");
+                response.directives = response.directives || [];
+                for (let i = 0; i < ctx.directives.length; i++) {
+                    response.directives.push(ctx.directives[i]);
+                }
+            }
+
+            console.log(`==Response==${JSON.stringify(response)}`);
+            console.log(`==SessionAttributes==${JSON.stringify(attributesManager.getSessionAttributes())}`);
+
+            return response;
+            //return new Promise((resolve, reject) => {
+            //    handlerInput.attributesManager.savePersistentAttributes()
+            //        .then(() => {
+            //            resolve();
+            //        })
+            //        .catch((error) => {
+            //            reject(error);
+            //        });
+            //});
+        }
     }
 };

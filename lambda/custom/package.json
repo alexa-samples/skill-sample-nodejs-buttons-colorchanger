@@ -4,7 +4,9 @@
   "description": "Echo Buttons Color Changer Sample Skill",
   "main": "index.js",
   "dependencies": {
-    "alexa-sdk": "^1.0.15"
+    "ask-sdk-core": "^2.0.3",
+    "ask-sdk-dynamodb-persistence-adapter": "^2.0.3",
+    "ask-sdk-model": "^1.3.0"
   },
   "keywords": [
     "alexa",

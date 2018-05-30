@@ -15,7 +15,7 @@
 
 'use strict';
 
-const Alexa = require('alexa-sdk');
+const Alexa = require('ask-sdk-core');
 // Gadget Directives Builder
 const GadgetDirectives = require('util/gadgetDirectives.js');
 // Basic Animation Helper Library
@@ -111,215 +111,172 @@ const ROLL_CALL_EVENTS = {
 //   ROLL_CALL_MODE Handlers
 //     set up handlers for events that are specific to the Roll Call mode
 // ***********************************************************************
-module.exports = Alexa.CreateStateHandler(Settings.SKILL_STATES.ROLL_CALL_MODE, {
-    'LaunchRequest': function() { 
-        // on LaunchRequest, pass control over to the `NewSession` event handler (which in turn passes control to `StartRollCall`)      
-        this.emit('NewSession');
+const RollCall = {
+    NewSession: function(handlerInput) {
+        console.log("RollCall::NewSession");
+        
+        const ctx = handlerInput.attributesManager.getRequestAttributes();
+
+         // setup the output speech that Alexa should speak when roll call is stared, 
+         // after the skill is first launched 
+         ctx.outputSpeech = ["Welcome to the Color Changer skill."];
+         ctx.outputSpeech.push("This skill provides a brief introduction to the core");
+         ctx.outputSpeech.push("functionality that every Echo Button skill should have.");
+         ctx.outputSpeech.push("We'll cover roll call, starting and stopping the Input Handler,");
+         ctx.outputSpeech.push("button events and Input Handler timeout events. ");
+         ctx.outputSpeech.push("Let's get started with roll call. ");
+         ctx.outputSpeech.push("Roll call wakes up the buttons to make sure");
+         ctx.outputSpeech.push("they're connected and ready for play. ");
+         ctx.outputSpeech.push("Ok. Press the first button and wait for confirmation");
+         ctx.outputSpeech.push("before pressing the second button.");        
+
+         ctx.timeout = 50000;
+         
+         ctx.openMicrophone = true;
+         return RollCall.StartRollCall(handlerInput);
     },
-    'NewSession': function(outputSpeech) {
-        console.log("rollCallModeIntentHandlers::NewSession");
-
-        // setup the output speech that Alexa should speak when roll call is stared, after the skill is first launched 
-        const welcomeMessage = "Welcome to the Color Changer skill. "
-            + "This skill provides a brief introduction to the core functionality that every Echo Button skill should have. "
-            + "We'll cover roll call, starting and stopping the Input Handler, button events and Input Handler timeout events. "
-            + "Let's get started with roll call. "
-            + "Roll call wakes up the buttons to make sure they're connected and ready for play. "
-            + "Ok. Press the first button and wait for confirmation before pressing the second button.";        
-
-        // pass control over to the StartRollCall event handler
-        this.emit('StartRollCall', {
-            'outputSpeech': welcomeMessage + Settings.WAITING_AUDIO, 
-            'timeout': 50000
-        });
-    },
-    'StartRollCall': function({ outputSpeech, timeout = 50000 }) {
-        console.log("rollCallModeIntentHandlers::StartRollCall");
-
-        this.response.speak(outputSpeech);
-
+    StartRollCall: function(handlerInput) {
+        console.log("RollCall::StartRollCall");
+        const { attributesManager } = handlerInput;        
+        const ctx = attributesManager.getRequestAttributes();
+        const sessionAttributes = attributesManager.getSessionAttributes();
+ 
+        console.log("RollCall::StartRollCall -> timeout = " + ctx.timeout);
         // add a StartInputHandler directive using the ROLL_CALL recognizers and events
-        this.response._addDirective(GadgetDirectives.startInputHandler({ 
-            'timeout': timeout, 
+        ctx.directives.push(GadgetDirectives.startInputHandler({ 
+            'timeout': ctx.timeout, 
             'proxies': ['first_button', 'second_button'],
             'recognizers': ROLL_CALL_RECOGNIZERS, 
             'events': ROLL_CALL_EVENTS 
         }));
-        this.response._addDirective(GadgetDirectives.setButtonDownAnimation(ROLL_CALL_ANIMATIONS.ButtonCheckInDown));                            
-        this.response._addDirective(GadgetDirectives.setButtonUpAnimation(ROLL_CALL_ANIMATIONS.ButtonCheckInUp));   
-        
+        ctx.directives.push(GadgetDirectives.setButtonDownAnimation(
+            ROLL_CALL_ANIMATIONS.ButtonCheckInDown));                            
+        ctx.directives.push(GadgetDirectives.setButtonUpAnimation(
+            ROLL_CALL_ANIMATIONS.ButtonCheckInUp));   
+ 
         // start keeping track of some state
         // see: https://developer.amazon.com/docs/gadget-skills/save-state-echo-button-skill.html
-        this.attributes.buttonCount = 0;
-        this.attributes.isRollCallComplete = false;
-        this.attributes.expectingEndSkillConfirmation = false;
+        sessionAttributes.buttonCount = 0;
+        sessionAttributes.isRollCallComplete = false;
+        sessionAttributes.expectingEndSkillConfirmation = false;
         // setup an array of DeviceIDs to hold IDs of buttons that will be used in the skill
-        this.attributes.DeviceIDs = [];        
-        this.attributes.DeviceIDs[0] = "Device ID listings";
+        sessionAttributes.DeviceIDs = [];        
+        sessionAttributes.DeviceIDs[0] = "Device ID listings";
         // Save StartInput Request ID
-        this.attributes.CurrentInputHandlerID = this.event.request.requestId;
+        sessionAttributes.CurrentInputHandlerID = handlerInput.requestEnvelope.request.requestId;
+ 
+        ctx.openMicrophone = false;
+        return handlerInput.responseBuilder.getResponse();
+    },     
+     
+    HandleFirstButtonCheckIn: function(handlerInput) {
+        console.log("RollCall::InputHandlerEvent::first_button_checked_in");
+        const {attributesManager} = handlerInput;
+        const ctx = attributesManager.getRequestAttributes();
+        const sessionAttributes = attributesManager.getSessionAttributes();
 
-        this.emit('GlobalResponseReady', { 'openMicrophone': false });
-    },
-    'InputHandlerEvent.first_button_checked_in': function({
-        inputEvents = []
-    } = {}) {
-        console.log("rollCallModeIntentHandlers::InputHandlerEvent::first_button_checked_in");
+        console.log("RollCall:: request attributes  = " + JSON.stringify(ctx, null, 2));
 
-        // just in case we ever get this event, after the `second_button_checked_in` event was already handled
-        // we check the make sure the `buttonCount` attribute is set to 0; if not, we will silently ignore the event
-        if (this.attributes.buttonCount === 0) {                        
+        // just in case we ever get this event, after the `second_button_checked_in` event
+        //  was already handled, we check the make sure the `buttonCount` attribute is set to 0;
+        //   if not, we will silently ignore the event
+        if (sessionAttributes.buttonCount === 0) {                        
             // Say something when we first encounter a button
-            const outputSpeech = 'hello, button 1' + Settings.WAITING_AUDIO;
+            ctx.outputSpeech = ['Hello, button 1.'];
+            ctx.outputSpeech.push(Settings.WAITING_AUDIO);
+
+            let fistButtonId = ctx.gameInputEvents[0].gadgetId;
+            ctx.directives.push(GadgetDirectives.setIdleAnimation(
+                ROLL_CALL_ANIMATIONS.ButtonCheckInIdle, { 'targetGadgets': [fistButtonId] } ));
             
-            let fistButtonId = inputEvents[0].gadgetId;
-            this.response._addDirective(GadgetDirectives.setIdleAnimation(ROLL_CALL_ANIMATIONS.ButtonCheckInIdle, { 'targetGadgets': [fistButtonId] } ));
-            this.response.speak(outputSpeech);
-
-            this.attributes.DeviceIDs[1] = fistButtonId;
-            this.attributes.buttonCount = 1;
+            sessionAttributes.DeviceIDs[1] = fistButtonId;
+            sessionAttributes.buttonCount = 1;
         }
-
-        this.emit('GlobalResponseReady', { 'openMicrophone': false });
-    },
-    'InputHandlerEvent.second_button_checked_in': function({
-        inputEvents = []
-    } = {}) {
-        console.log("rollCallModeIntentHandlers::InputHandlerEvent::second_button_checked_in");
+         
+        ctx.openMicrophone = false;
+        return handlerInput.responseBuilder.getResponse();
+    },    
+    HandleSecondButtonCheckIn: function(handlerInput) {
+        console.log("RollCall::InputHandlerEvent::second_button_checked_in");
+        const {attributesManager} = handlerInput;
+        const ctx = attributesManager.getRequestAttributes();
+        const sessionAttributes = attributesManager.getSessionAttributes();
+        const gameInputEvents = ctx.gameInputEvents;
+        console.log("RollCall::InputHandlerEvent::second_button_checked_in");
         
-        const reprompt = "Please pick a color: green, red, or blue";
-        let outputSpeech = "";
+        ctx.reprompt = ["Please pick a color: green, red, or blue"];
+        ctx.outputSpeech = [];
 
-        if (this.attributes.buttonCount == 0) {
+        if (sessionAttributes.buttonCount == 0) {
             // just got both buttons at the same time
-            outputSpeech = "hello buttons 1 and 2 <break time='1s'/> Awesome! "
+            ctx.outputSpeech.push("hello buttons 1 and 2");
+            ctx.outputSpeech.push("<break time='1s'/>");
+            ctx.outputSpeech.push("Awesome!");
 
-            this.attributes.DeviceIDs[1] = inputEvents[0].gadgetId;
-            this.attributes.DeviceIDs[2] = inputEvents[1].gadgetId;
+            sessionAttributes.DeviceIDs[1] = gameInputEvents[0].gadgetId;
+            sessionAttributes.DeviceIDs[2] = gameInputEvents[1].gadgetId;
 
         } else {
             // already had button 1, just got button 2..
-            outputSpeech = 'hello, button 2' + "<break time='1s'/> Awesome. I've registered two buttons. ";
+            ctx.outputSpeech.push("hello, button 2");
+            ctx.outputSpeech.push("<break time='1s'/>");
+            ctx.outputSpeech.push("Awesome. I've registered two buttons.");
 
-            if (this.attributes.DeviceIDs.indexOf(inputEvents[0].gadgetId) === -1) {
-                this.attributes.DeviceIDs[2] = inputEvents[0].gadgetId;
+            if (sessionAttributes.DeviceIDs.indexOf(inputEvents[0].gadgetId) === -1) {
+                sessionAttributes.DeviceIDs[2] = gameInputEvents[0].gadgetId;
             } else {
-                this.attributes.DeviceIDs[2] = inputEvents[1].gadgetId;
+                sessionAttributes.DeviceIDs[2] = gameInputEvents[1].gadgetId;
             }                        
         }
-        this.attributes.buttonCount = 2;
+        sessionAttributes.buttonCount = 2;
         
         // .. and ask use to pick a color for the next stage of the skill 
-        outputSpeech += "Now let's learn about button events. Please select one of the following colors: red, blue, or green.";        
-    
-        this.response.speak(outputSpeech).listen(reprompt);                        
+        ctx.outputSpeech.push("Now let's learn about button events.");
+        ctx.outputSpeech.push("Please select one of the following colors: red, blue, or green.");                                  
             
-        let deviceIds = this.attributes.DeviceIDs;
+        let deviceIds = sessionAttributes.DeviceIDs;
         deviceIds = deviceIds.slice(-2);
 
         // send an idle animation to registered buttons
-        this.response._addDirective(GadgetDirectives.setIdleAnimation(ROLL_CALL_ANIMATIONS.RollCallComplete, { 'targetGadgets': deviceIds } ));
+        ctx.directives.push(GadgetDirectives.setIdleAnimation(
+            ROLL_CALL_ANIMATIONS.RollCallComplete, { 'targetGadgets': deviceIds } ));
         // reset button press animations until the user chooses a color
-        this.response._addDirective(GadgetDirectives.setButtonDownAnimation(Settings.DEFUALT_ANIMATIONS.ButtonDown));
-        this.response._addDirective(GadgetDirectives.setButtonUpAnimation(Settings.DEFUALT_ANIMATIONS.ButtonUp));
+        ctx.directives.push(GadgetDirectives.setButtonDownAnimation(
+            Settings.DEFAULT_ANIMATIONS.ButtonDown));
+        ctx.directives.push(GadgetDirectives.setButtonUpAnimation(
+            Settings.DEFAULT_ANIMATIONS.ButtonUp));
     
-        this.attributes.isRollCallComplete = true;
-        this.handler.state = Settings.SKILL_STATES.PLAY_MODE;
+        sessionAttributes.isRollCallComplete = true;
+        sessionAttributes.state = Settings.SKILL_STATES.PLAY_MODE;
 
-        this.emit('GlobalResponseReady', { 'openMicrophone': true });
+        ctx.openMicrophone = true;
+        return handlerInput.responseBuilder.getResponse();
     },
-    'InputHandlerEvent.timeout': function() {
+    HandleTimeout: function(handlerInput) {
         console.log("rollCallModeIntentHandlers::InputHandlerEvent::timeout");
+        const {attributesManager} = handlerInput;
+        const ctx = attributesManager.getRequestAttributes();
+        const sessionAttributes = attributesManager.getSessionAttributes();        
 
-        const outputSpeech = "For this skill we need two buttons. Would you like more time to press the buttons?";
-        const reprompt = "Say yes to go back and add buttons, or no to exit now.";
-
-        this.response.speak(outputSpeech).listen(reprompt);
-
-        let deviceIds = this.attributes.DeviceIDs;
+        ctx.outputSpeech = ["For this skill we need two buttons."];
+        ctx.outputSpeech.push("Would you like more time to press the buttons?");
+        ctx.reprompt = ["Say yes to go back and add buttons, or no to exit now."];
+ 
+        let deviceIds = sessionAttributes.DeviceIDs;
         deviceIds = deviceIds.slice(-2);
+ 
+        ctx.directives.push(GadgetDirectives.setIdleAnimation(
+            ROLL_CALL_ANIMATIONS.Timeout, { 'targetGadgets': deviceIds } ));                    
+        ctx.directives.push(GadgetDirectives.setButtonDownAnimation(
+            DEFAULT_ANIMATIONS.ButtonDown, { 'targetGadgets': deviceIds } ));
+        ctx.directives.push(GadgetDirectives.setButtonUpAnimation(
+            DEFAULT_ANIMATIONS.ButtonUp, { 'targetGadgets': deviceIds } ));
 
-        // Reset button animations while we figure out what the user wants to do next
-        this.response._addDirective(GadgetDirectives.setIdleAnimation(ROLL_CALL_ANIMATIONS.Timeout, { 'targetGadgets': deviceIds } ));                    
-        this.response._addDirective(GadgetDirectives.setButtonDownAnimation(DEFUALT_ANIMATIONS.ButtonDown, { 'targetGadgets': deviceIds } ));
-        this.response._addDirective(GadgetDirectives.setButtonUpAnimation(DEFUALT_ANIMATIONS.ButtonUp, { 'targetGadgets': deviceIds } ));
+        sessionAttributes.expectingEndSkillConfirmation = true;
 
-        // set a flag that we can use to determine that the confirmation is for a timeout
-        this.attributes.expectingEndSkillConfirmation = true;
-        
-        this.emit('GlobalResponseReady', { 'openMicrophone': true });
-        return;
-    },
-    'GameEngine.InputHandlerEvent': function() {
-        console.log("rollCallModeIntentHandlers::InputHandlerEvent");
-        if (this.event.request.originatingRequestId != this.attributes.CurrentInputHandlerID) {
-            console.log("Stale input event received: received event from " + this.event.request.originatingRequestId + "; expecting " + this.attributes.CurrentInputHandlerID);
-            
-            this.emit('GlobalResponseReady', { 'openMicrophone': false });
-            return;
-        }
+        ctx.openMicrophone = true;
+        return handlerInput.responseBuilder.getResponse();
+    }  
+};
 
-        var gameEngineEvents = this.event.request.events || [];
-        for (var i = 0; i < gameEngineEvents.length; i++) {
-            // In this request type, we'll see one or more incoming events
-            // that correspond to the StartInputHandler we sent above.
-            switch (gameEngineEvents[i].name) {
-                case 'first_button_checked_in':                    
-                    this.emit('InputHandlerEvent.first_button_checked_in' + Settings.SKILL_STATES.ROLL_CALL_MODE, { 
-                        // pass input events that contain information about the button being pressed
-                        'inputEvents': gameEngineEvents[i].inputEvents
-                    });
-                    return;
-                case 'second_button_checked_in':
-                    this.emit('InputHandlerEvent.second_button_checked_in' + Settings.SKILL_STATES.ROLL_CALL_MODE, { 
-                        // pass input events that contain information about the button being pressed
-                        'inputEvents': gameEngineEvents[i].inputEvents
-                    });
-                    return;
-                case 'timeout':                    
-                    this.emit('InputHandlerEvent.timeout' + Settings.SKILL_STATES.ROLL_CALL_MODE);
-                    return;
-            }
-        }
-    },
-    'AMAZON.YesIntent': function() {
-        console.log("rollCallModeIntentHandlers::YesIntent (expecting exit = " + this.attributes.expectingEndSkillConfirmation + ")");
-
-        if (this.attributes.expectingEndSkillConfirmation === true) {
-            // setup some output speech for Alexa to speak when restarting the roll call
-            var instructions = "Ok. Press the first button, wait for confirmation, then press the second button.";            
-
-            // pass control to the StartRollCall event handler to restart the rollcall process
-            this.emit('StartRollCall', {
-                'outputSpeech': instructions + Settings.WAITING_AUDIO, 
-                'timeout': 30000
-            });
-        } else {
-            this.emit('GlobalHelpHandler');
-        }
-    },
-    'AMAZON.NoIntent': function() {
-        console.log("rollCallModeIntentHandlers::NoIntent (expecting exit = " + this.attributes.expectingEndSkillConfirmation + ")");
-        
-        if (this.attributes.expectingEndSkillConfirmation === true) {
-            // if user says No when prompted whether they will to continue with rollcall then just exit
-            this.emit('GlobalStopHandler');
-        } else {
-            // if user responds No to another prompt, perform the help activity and resume  
-            this.emit('GlobalHelpHandler');
-        }
-    },
-    'AMAZON.StopIntent': function() {
-        this.emit('GlobalStopHandler');
-    },
-    'AMAZON.CancelIntent': function() {
-        this.emit('GlobalStopHandler');
-    },
-    'AMAZON.HelpIntent': function() {
-        this.emit('GlobalHelpHandler');
-    },    
-    'Unhandled': function() {
-        console.log("rollCallModeIntentHandlers::unhandled");
-        this.emit('GlobalDefaultHandler');
-    }
-});
+module.exports = RollCall;
