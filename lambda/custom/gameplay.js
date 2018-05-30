@@ -15,7 +15,7 @@
 
 'use strict';
 
-const Alexa = require('alexa-sdk');
+const Alexa = require('ask-sdk-core');
 // Gadget Directives Builder
 const GadgetDirectives = require('util/gadgetDirectives.js');
 // Basic Animation Helper Library
@@ -63,144 +63,129 @@ const DIRECT_MODE_EVENTS = {
 //     set up handlers for events that are specific to the Play mode
 //     after the user registered the buttons - this is the main mode
 // ***********************************************************************
-module.exports = Alexa.CreateStateHandler(Settings.SKILL_STATES.PLAY_MODE, {
+const GamePlay = {
 
-    'colorIntent': function() {
-        console.log("playModeIntentHandlers::colorIntent");
-
-        const uColor = this.event.request.intent.slots.color.value;
-        console.log("User color: " + uColor);        
-
-        if (uColor === undefined || Settings.COLORS_ALLOWED.indexOf(uColor) == -1) {
-            this.emit('GlobalHelpHandler');
+    ColorIntentHandler: function(handlerInput) {
+        console.log("GamePlay::colorIntent");
+        const {attributesManager} = handlerInput;
+        const ctx = attributesManager.getRequestAttributes();
+        const sessionAttributes = attributesManager.getSessionAttributes();
+        const { request } = handlerInput.requestEnvelope;
+                   
+        const uColor = request.intent.slots.color.value;
+        console.log("User color: " + uColor);
+                   
+        if (uColor === undefined || Settings.COLOR_SHADES[uColor] === undefined) {
+            ctx.reprompt = ["What color was that? Please pick a valid color!"];
+            ctx.outputSpeech = ["Sorry, I didn't get that. " + ctx.reprompt[0]];
+            ctx.openMicrophone = false;
+            return handlerInput.responseBuilder.getResponse();
         } else {
-            this.attributes.ColorChoice = uColor;
+            sessionAttributes.ColorChoice = uColor;
 
             // Build Start Input Handler Directive
-            this.response._addDirective(GadgetDirectives.startInputHandler({ 
+            ctx.directives.push(GadgetDirectives.startInputHandler({ 
                 'timeout': 30000, 
                 'recognizers': DIRECT_BUTTON_DOWN_RECOGNIZER, 
                 'events': DIRECT_MODE_EVENTS 
             } ));
 
             // Save Input Handler Request ID
-            this.attributes.CurrentInputHandlerID = this.event.request.requestId;
-            console.log("Current Input Handler ID: " + this.attributes.CurrentInputHandlerID);
+            sessionAttributes.CurrentInputHandlerID = request.requestId;
+            console.log("Current Input Handler ID: " + sessionAttributes.CurrentInputHandlerID);
 
-            let deviceIds = this.attributes.DeviceIDs;
+            let deviceIds = sessionAttributes.DeviceIDs;
             deviceIds = deviceIds.slice(-2);
 
             // Build 'idle' breathing animation, based on the users color of choice, that will play immediately
-            this.response._addDirective(GadgetDirectives.setIdleAnimation({ 
+            ctx.directives.push(GadgetDirectives.setIdleAnimation({ 
                 'targetGadgets': deviceIds, 
                 'animations': BasicAnimations.BreatheAnimation(30, Settings.BREATH_CUSTOM_COLORS[uColor], 450) 
             } ));
 
             // Build 'button down' animation, based on the users color of choice, for when the button is pressed
-            this.response._addDirective(GadgetDirectives.setButtonDownAnimation({ 
+            ctx.directives.push(GadgetDirectives.setButtonDownAnimation({ 
                 'targetGadgets': deviceIds, 
                 'animations': BasicAnimations.SolidAnimation(1, uColor, 2000) 
             } ));
 
             // build 'button up' animation, based on the users color of choice, for when the button is released
-            this.response._addDirective(GadgetDirectives.setButtonUpAnimation({ 
+            ctx.directives.push(GadgetDirectives.setButtonUpAnimation({ 
                 'targetGadgets': deviceIds, 
                 'animations': BasicAnimations.SolidAnimation(1, uColor, 200) 
             } ));
 
-            const outputSpeech = "Ok. " + uColor + " it is. When you press a button, it will now turn " + uColor + ". "
-                + "Pressing the button will also interrupt me if I'm speaking or playing music. I'll keep talking so you can interrupt me. Go ahead and try it. "
-                + Settings.WAITING_AUDIO;
-
-            this.response.speak(outputSpeech);
+            ctx.outputSpeech = ["Ok. " + uColor + " it is."];
+            ctx.outputSpeech.push("When you press a button, it will now turn " + uColor + ".");
+            ctx.outputSpeech.push("Pressing the button will also interrupt me if I'm speaking");
+            ctx.outputSpeech.push("or playing music. I'll keep talking so you can interrupt me.");
+            ctx.outputSpeech.push("Go ahead and try it.");
+            ctx.outputSpeech.push(Settings.WAITING_AUDIO);            
             
-            this.emit('GlobalResponseReady', { 'openMicrophone': false }); 
+            ctx.openMicrophone = false;
+            return handlerInput.responseBuilder.getResponse();
         }
     },
-    'InputHandlerEvent.timeout': function() {
-        console.log("playModeIntentHandlers::InputHandlerEvent::timeout");
+
+    HandleTimeout: function(handlerInput) {
+        console.log("GamePlay::InputHandlerEvent::timeout");
+        const {attributesManager} = handlerInput;
+        const ctx = attributesManager.getRequestAttributes();
+        const sessionAttributes = attributesManager.getSessionAttributes();    
 
         // The color the user chose
-        const uColor = this.attributes.ColorChoice;
-        const outputSpeech = "The input handler has timed out. That concludes our test, would you like to quit?";
-        const reprompt = "Would you like to exit? Say Yes to exit, or No to keep going";
-        this.response.speak(outputSpeech).listen(reprompt);                                    
+        const uColor = sessionAttributes.ColorChoice;
+        ctx.outputSpeech = ["The input handler has timed out."];
+        ctx.outputSpeech.push("That concludes our test, would you like to quit?");
+        ctx.reprompt = ["Would you like to exit?"];
+        ctx.reprompt.push("Say Yes to exit, or No to keep going");
 
-        let deviceIds = this.attributes.DeviceIDs;
+        let deviceIds = sessionAttributes.DeviceIDs;
         deviceIds = deviceIds.slice(-2);
         // play a custom FadeOut animation, based on the user's selected color
-        this.response._addDirective(GadgetDirectives.setIdleAnimation({ 
+        ctx.directives.push(GadgetDirectives.setIdleAnimation({ 
             'targetGadgets': deviceIds, 
             'animations': BasicAnimations.FadeOutAnimation(1, uColor, 2000) 
         }));
         // Reset button animation for skill exit
-        this.response._addDirective(GadgetDirectives.setButtonDownAnimation(Settings.DEFUALT_ANIMATIONS.ButtonDown, {'targetGadgets': deviceIds } ));
-        this.response._addDirective(GadgetDirectives.setButtonUpAnimation(Settings.DEFUALT_ANIMATIONS.ButtonUp, {'targetGadgets': deviceIds } ));
+        ctx.directives.push(GadgetDirectives.setButtonDownAnimation(
+            Settings.DEFUALT_ANIMATIONS.ButtonDown, {'targetGadgets': deviceIds } ));
+        ctx.directives.push(GadgetDirectives.setButtonUpAnimation(
+            Settings.DEFUALT_ANIMATIONS.ButtonUp, {'targetGadgets': deviceIds } ));
 
         // Set Skill End flag
-        this.attributes.expectingEndSkillConfirmation = true;
-        this.handler.state = Settings.SKILL_STATES.EXIT_MODE;
+        sessionAttributes.expectingEndSkillConfirmation = true;
+        sessionAttributes.state = Settings.SKILL_STATES.EXIT_MODE;
                             
-        this.emit('GlobalResponseReady', { 'openMicrophone': true }); 
+        ctx.openMicrophone = true;
+        return handlerInput.responseBuilder.getResponse();
     },
-    'InputHandlerEvent.button_down_event': function({ buttonId } = {}) {
-        console.log("playModeIntentHandlers::InputHandlerEvent::button_down_event");
+
+    HandleButtonPressed: function(handlerInput) {
+        console.log("GamePlay::InputHandlerEvent::button_down_event");
+        const {attributesManager} = handlerInput;
+        const ctx = attributesManager.getRequestAttributes();
+        const sessionAttributes = attributesManager.getSessionAttributes();   
         
-        let deviceIds = this.attributes.DeviceIDs;
-        let outputSpeech = "";
+        let deviceIds = sessionAttributes.DeviceIDs;
+        ctx.outputSpeech = [];
 
         // Checks for Invalid Button ID
         if (deviceIds.indexOf(buttonId) == -1) {
             console.log("Button event received for gadget that was not registered during roll call.");
             // Don't send any directives back to Alexa for invalid Button ID Events
-            outputSpeech = "Unregistered button. Only buttons registered during roll call are in play. "
-                         + Settings.WAITING_AUDIO;
+            ctx.outputSpeech.push("Unregistered button");
+            ctx.outputSpeech.push("Only buttons registered during roll call are in play.");
+            ctx.outputSpeech.push(Settings.WAITING_AUDIO);
         } else {
             var buttonNo = deviceIds.indexOf(buttonId);
-            outputSpeech = "button " + buttonNo + ". " + Settings.WAITING_AUDIO;            
-        }
-        this.response.speak(outputSpeech);
+            ctx.outputSpeech.push("Button " + buttonNo + ". ");
+            ctx.outputSpeech.push(Settings.WAITING_AUDIO);            
+        }        
         
-        this.emit('GlobalResponseReady', { 'openMicrophone': false });        
-    },
-    'GameEngine.InputHandlerEvent': function() {
-        console.log("playModeIntentHandlers::InputHandlerEvent");
-        if (this.event.request.originatingRequestId != this.attributes.CurrentInputHandlerID) {
-            console.log("Stale input event received. Ignoring!");
-            
-            this.emit('GlobalResponseReady', { 'openMicrophone': false });
-            return;
-        }
-
-        let gameEngineEvents = this.event.request.events || [];
-        for (var i = 0; i < gameEngineEvents.length; i++) {            
-            // GameEngine.InputHandlerEvent requests may contain one or more input events
-            // depending on the state of the recognizers defined for the active Input Handler 
-            switch (gameEngineEvents[i].name) {
-                case 'button_down_event':
-                    this.emit('InputHandlerEvent.button_down_event' + Settings.SKILL_STATES.PLAY_MODE, { 
-                        // pass the id of the button that triggered the event
-                        'buttonId': gameEngineEvents[i].inputEvents[0].gadgetId 
-                    });
-                    return;
-                
-                case 'timeout':                    
-                    this.emit('InputHandlerEvent.timeout' + Settings.SKILL_STATES.PLAY_MODE);
-                    return;
-            }
-        }
-    },
-    'AMAZON.StopIntent': function() {
-        this.emit('GlobalStopHandler');
-    },
-    'AMAZON.CancelIntent': function() {
-        this.emit('GlobalStopHandler');
-    },
-    'AMAZON.HelpIntent': function() {
-        this.emit('GlobalHelpHandler');
-    },
-    'Unhandled': function() {
-        console.log("playModeIntentHandlers::Unhandled");      
-        this.emit('GlobalDefaultHandler');
+        ctx.openMicrophone = false;
+        return handlerInput.responseBuilder.getResponse();
     }
-});
+};
+
+module.exports = GamePlay;
