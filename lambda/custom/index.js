@@ -227,13 +227,7 @@ const GlobalHandlers = {
                 return RollCall.StartRollCall(handlerInput);
             } else if (state === Settings.SKILL_STATES.EXIT_MODE 
                 && sessionAttributes.expectingEndSkillConfirmation === true) {
-                // pass control to the StartRollCall event handler to restart the rollcall process
-                ctx.reprompt = ["Pick a different color, red, blue, or green."];
-                ctx.outputSpeech = ["Ok, let's keep going."];
-                ctx.outputSpeech.push(ctx.reprompt);
-                ctx.openMicrophone = true;
-                sessionAttributes.state = Settings.SKILL_STATES.PLAY_MODE;
-                return handlerInput.responseBuilder.getResponse();
+                return GlobalHandlers.SessionEndedRequestHandler(handlerInput);                                
             } else if (state === Settings.SKILL_STATES.EXIT_MODE) {
                 // ---- Hanlde "Yes", if we're in EXIT_MODE, but not expecting exit confirmation
                 return GlobalHandlers.DefaultHandler.handle(handlerInput);
@@ -265,7 +259,12 @@ const GlobalHandlers = {
                 return GlobalHandlers.StopIntentHandler(handlerInput);
             } if (state === Settings.SKILL_STATES.EXIT_MODE 
                 && sessionAttributes.expectingEndSkillConfirmation === true) { 
-                return GlobalHandlers.SessionEndedRequestHandler(handlerInput);
+                ctx.reprompt = ["Pick a different color, red, blue, or green."];
+                ctx.outputSpeech = ["Ok, let's keep going."];
+                ctx.outputSpeech.push(ctx.reprompt);
+                ctx.openMicrophone = true;
+                sessionAttributes.state = Settings.SKILL_STATES.PLAY_MODE;
+                return handlerInput.responseBuilder.getResponse();
             } else if (state === Settings.SKILL_STATES.EXIT_MODE) {
                 // ---- Hanlde "No" in other cases .. just fall back on the help intent
                 return GlobalHandlers.DefaultHandler.handle(handlerInput);

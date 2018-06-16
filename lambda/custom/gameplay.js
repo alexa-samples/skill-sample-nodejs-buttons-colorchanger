@@ -167,19 +167,20 @@ const GamePlay = {
         const ctx = attributesManager.getRequestAttributes();
         const sessionAttributes = attributesManager.getSessionAttributes();   
         
-        let deviceIds = sessionAttributes.DeviceIDs;
-        ctx.outputSpeech = [];
+        let deviceIds = sessionAttributes.DeviceIDs;        
+        let gameInputEvents = ctx.gameInputEvents;
+        let buttonId = gameInputEvents[0].gadgetId;
 
         // Checks for Invalid Button ID
         if (deviceIds.indexOf(buttonId) == -1) {
-            console.log("Button event received for gadget that was not registered during roll call.");
+            console.log("Button event received for unregisterd gadget.");
             // Don't send any directives back to Alexa for invalid Button ID Events
-            ctx.outputSpeech.push("Unregistered button");
+            ctx.outputSpeech = ["Unregistered button"];
             ctx.outputSpeech.push("Only buttons registered during roll call are in play.");
             ctx.outputSpeech.push(Settings.WAITING_AUDIO);
         } else {
             var buttonNo = deviceIds.indexOf(buttonId);
-            ctx.outputSpeech.push("Button " + buttonNo + ". ");
+            ctx.outputSpeech = ["Button " + buttonNo + ". "];
             ctx.outputSpeech.push(Settings.WAITING_AUDIO);            
         }        
         

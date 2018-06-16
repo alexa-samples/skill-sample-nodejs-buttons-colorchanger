@@ -1,8 +1,8 @@
 {
   "deploy_settings": {
-    "default": {
+    "color-changer": {
       "skill_id": "",
-      "was_cloned": true,
+      "was_cloned": false,
       "merge": {
         "manifest": {
           "apis": {
