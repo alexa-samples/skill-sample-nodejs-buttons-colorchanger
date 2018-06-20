@@ -74,8 +74,8 @@ const GamePlay = {
                    
         const uColor = request.intent.slots.color.value;
         console.log("User color: " + uColor);
-                   
-        if (uColor === undefined || Settings.COLOR_SHADES[uColor] === undefined) {
+        
+        if (uColor === undefined || Settings.COLORS_ALLOWED.indexOf(uColor) === -1) {
             ctx.reprompt = ["What color was that? Please pick a valid color!"];
             ctx.outputSpeech = ["Sorry, I didn't get that. " + ctx.reprompt[0]];
             ctx.openMicrophone = false;
