@@ -149,10 +149,10 @@ const GamePlay = {
         }));
         // Reset button animation for skill exit
         ctx.directives.push(GadgetDirectives.setButtonDownAnimation(
-            Settings.DEFUALT_ANIMATIONS.ButtonDown, {'targetGadgets': deviceIds } ));
+            Settings.DEFAULT_ANIMATIONS.ButtonDown, {'targetGadgets': deviceIds } ));
         ctx.directives.push(GadgetDirectives.setButtonUpAnimation(
-            Settings.DEFUALT_ANIMATIONS.ButtonUp, {'targetGadgets': deviceIds } ));
-
+            Settings.DEFAULT_ANIMATIONS.ButtonUp, {'targetGadgets': deviceIds } ));
+                
         // Set Skill End flag
         sessionAttributes.expectingEndSkillConfirmation = true;
         sessionAttributes.state = Settings.SKILL_STATES.EXIT_MODE;

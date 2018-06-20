@@ -268,9 +268,9 @@ const RollCall = {
         ctx.directives.push(GadgetDirectives.setIdleAnimation(
             ROLL_CALL_ANIMATIONS.Timeout, { 'targetGadgets': deviceIds } ));                    
         ctx.directives.push(GadgetDirectives.setButtonDownAnimation(
-            DEFAULT_ANIMATIONS.ButtonDown, { 'targetGadgets': deviceIds } ));
+            Settings.DEFAULT_ANIMATIONS.ButtonDown, { 'targetGadgets': deviceIds } ));
         ctx.directives.push(GadgetDirectives.setButtonUpAnimation(
-            DEFAULT_ANIMATIONS.ButtonUp, { 'targetGadgets': deviceIds } ));
+            Settings.DEFAULT_ANIMATIONS.ButtonUp, { 'targetGadgets': deviceIds } ));
 
         sessionAttributes.expectingEndSkillConfirmation = true;
 
