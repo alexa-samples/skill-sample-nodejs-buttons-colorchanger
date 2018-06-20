@@ -227,7 +227,7 @@ const GlobalHandlers = {
                 return RollCall.StartRollCall(handlerInput);
             } else if (state === Settings.SKILL_STATES.EXIT_MODE 
                 && sessionAttributes.expectingEndSkillConfirmation === true) {
-                return GlobalHandlers.SessionEndedRequestHandler(handlerInput);                                
+                return GlobalHandlers.SessionEndedRequestHandler.handle(handlerInput);                                
             } else if (state === Settings.SKILL_STATES.EXIT_MODE) {
                 // ---- Hanlde "Yes", if we're in EXIT_MODE, but not expecting exit confirmation
                 return GlobalHandlers.DefaultHandler.handle(handlerInput);
