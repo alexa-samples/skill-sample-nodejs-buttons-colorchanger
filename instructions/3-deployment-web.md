@@ -16,7 +16,6 @@ This sample skill uses:
 
 
 ## Table of Contents
-* [Skill Flow](#skill-flow)
 * [Preparation](#preparation)
 * [Step 1 - Setup Local Development Environment](#step-1-setup-local-development-environment)
 * [Step 2 - Upload the Deployment Package to AWS Lambda](#step-2-upload-the-deployment-package-to-aws-lambda)
@@ -30,15 +29,6 @@ This sample skill uses:
 * [Step 10 - Enable the Skill in the Alexa App](#step-10-enable-the-skill-in-the-alexa-app)
 * [Step 11 - Invoke the Skill](#step-11-invoke-the-skill)
 
-
-## Skill Flow
-
-When the Color Changer skill begins, Alexa will ask you to press the Echo Buttons that you want to use. This is called [roll call](https://developer.amazon.com/docs/gadget-skills/discover-echo-buttons.html#goals). After you press the buttons, Alexa will ask you to select a color: red, blue, or green. When you select a color, the skill will send [animation directives](https://developer.amazon.com/docs/gadget-skills/control-echo-buttons.html#animate) to all the Echo Buttons. Once you have selected your color, Alexa will ask you to press the buttons. When you press a button, the skill will interrupt Alexa's speech and change the button's LED color to the color that you selected previously.
-
-Click on the following diagram to see a voice user interface (VUI) that shows how a user interacts with the skill. To zoom in, click on the diagram again when it opens in the browser window.
-
-<a href="https://m.media-amazon.com/images/G/01/mobile-apps/dex/gadget-skills/color-changer-skill-vui.png"><figure><img class="docimage" src="https://m.media-amazon.com/images/G/01/mobile-apps/dex/gadget-skills/color-changer-skill-vui.png" width="100%" alt="Color Changer VUI" /></figure></a>
- 
 
 ## Preparation
 Before you create the Color Changer skill, you must take the following steps:
