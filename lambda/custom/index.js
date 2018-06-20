@@ -250,13 +250,14 @@ const GlobalHandlers = {
             console.log("Global.NoIntentHandler: handling request");
             let { attributesManager } = handlerInput;
             const sessionAttributes = attributesManager.getSessionAttributes();
+            const ctx = attributesManager.getRequestAttributes();
             const state = sessionAttributes.state || '';
             
             // ---- Hanlde "No" when we're in the context of Roll Call ...
             if (state === Settings.SKILL_STATES.ROLL_CALL_MODE 
                 && sessionAttributes.expectingEndSkillConfirmation === true) {
                 // if user says No when prompted whether they will to continue with rollcall then just exit
-                return GlobalHandlers.StopIntentHandler(handlerInput);
+                return GlobalHandlers.StopIntentHandler.handle(handlerInput);
             } if (state === Settings.SKILL_STATES.EXIT_MODE 
                 && sessionAttributes.expectingEndSkillConfirmation === true) { 
                 ctx.reprompt = ["Pick a different color, red, blue, or green."];
