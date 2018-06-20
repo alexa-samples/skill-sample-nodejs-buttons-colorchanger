@@ -184,15 +184,15 @@ const GlobalHandlers = {
                         ctx.gameInputEvents = gameEngineEvents[i].inputEvents;
                         return RollCall.HandleSecondButtonCheckIn(handlerInput);
                     case 'button_down_event':
-                        if (sessionAttributes.state == settings.SKILL_STATES.PLAY_MODE) {
+                        if (sessionAttributes.state == Settings.SKILL_STATES.PLAY_MODE) {
                             ctx.gameInputEvents = gameEngineEvents[i].inputEvents;
                             return GamePlay.HandleButtonPressed(handlerInput);
                         }
                         break;
                     case 'timeout':
-                        if (sessionAttributes.state == settings.SKILL_STATES.ROLL_CALL_MODE) {                    
+                        if (sessionAttributes.state == Settings.SKILL_STATES.ROLL_CALL_MODE) {                    
                             return RollCall.HandleTimeout(handlerInput);
-                        } else if (sessionAttributes.state == settings.SKILL_STATES.PLAY_MODE) {
+                        } else if (sessionAttributes.state == Settings.SKILL_STATES.PLAY_MODE) {
                             return GamePlay.HandleTimeout(handlerInput);
                         }
                         break;

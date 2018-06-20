@@ -5,9 +5,6 @@
 
 **Important: The Gadgets Skill API is in beta and is subject to change at any time without notice. We welcome your feedback.**
 
-These instructions show how to create a skill called Color Changer, which demonstrates the core functionality of an [Echo Button](https://www.amazon.com/Echo-Buttons-Alexa-Gadget-Pack/dp/B072C4KCQH) skill. It covers [roll call](https://developer.amazon.com/docs/gadget-skills/discover-echo-buttons.html#goals), starting and stopping the [Input Handler](https://developer.amazon.com/docs/gadget-skills/receive-echo-button-events.html#flow), and [defining animations](https://developer.amazon.com/docs/gadget-skills/control-echo-buttons.html#animate) for different button events. It also demonstrates how Echo Buttons can interrupt text-to-speech (TTS).
-
-
 ## Pre-requisites
 
 * Node.js (> v6.9)
@@ -24,21 +21,21 @@ The following instructions show how to get this skill deployed using teh ASK CLI
 1. Get a local copy of the Color Changer skill code from [alexa-sample-nodejs-buttons-colorchanger](https://github.com/alexa/skill-sample-nodejs-buttons-colorchanger) GitHub. You may clone the repository locally, or simply download and unzip the sample code from GitHub. 
 
 	```bash
-	git clone https://github.com/alexa/skill-sample-nodejs-buttons-colorchanger/
+	$ git clone https://github.com/alexa/skill-sample-nodejs-buttons-colorchanger/
 	```
 
 2. Initialize the [ASK CLI](https://developer.amazon.com/docs/smapi/quick-start-alexa-skills-kit-command-line-interface.html) by Navigating into the repository and running the command: `ask init` and create a new profile called `color-changer`. Follow the prompts to configure the profile and associate it with one of your [AWS profiles](https://docs.aws.amazon.com/cli/latest/userguide/cli-multiple-profiles.html)
 
 	```bash
-	cd skill-sample-nodejs-buttons-colorchanger
-	ask init -p color-changer
+	$ cd skill-sample-nodejs-buttons-colorchanger
+	$ ask init -p color-changer
 	```
 
 3. Install npm dependencies by navigating into the `/lambda/custom` directory and running the npm command: `npm install`
 
 	```bash
-	cd lambda/custom
-	npm install
+	$ cd lambda/custom
+	$ npm install
 	```
 
 
@@ -49,7 +46,7 @@ ASK CLI will create the skill and the lambda function for you. The Lambda functi
 1. Deploy the skill and the lambda function in one step by running the following command:
 
 	```bash
-	ask deploy -p color-changer
+	$ ask deploy -p color-changer
 	```
 
 ### Testing
@@ -59,7 +56,7 @@ ASK CLI will create the skill and the lambda function for you. The Lambda functi
 2. Simulate verbal interaction with your skill through the command line using the following example:
 
 	```bash
-	 ask simulate -l en-US -p color-changer -t "alexa, open color changer"
+	 $ ask simulate -l en-US -p color-changer -t "alexa, open color changer"
 
 	 ✓ Simulation created for simulation id: 8a5b18dc-24b9-04c0-d3bb-7b63d9887faf
 	◡ Waiting for simulation response{
@@ -72,42 +69,3 @@ ASK CLI will create the skill and the lambda function for you. The Lambda functi
 	```text
 	Alexa, open color changer
 	```
-
-## Customization
-
-1. ```./skill.json```
-
-   Change the skill name, example phrase, icons, testing instructions etc ...
-
-   Remember that many information is locale-specific and must be changed for each locale (en-GB and en-US)
-
-   See the Skill [Manifest Documentation](https://developer.amazon.com/docs/smapi/skill-manifest.html) for more information.
-
-2. ```./lambda/custom/*```
-
-   Modify the skill logic
-
-3. ```./models/*.json```
-
-	Change the model definition to replace the invocation name and the sample phrase for each intent.  Repeat the operation for each locale you are planning to support.
-
-
-## Additional Resources
-
-### Community
-* [Amazon Developer Forums](https://forums.developer.amazon.com/spaces/311/gadgets-beta.html) - Join the conversation!
-* [Hackster.io](https://www.hackster.io/amazon-alexa) - See what others are building with Alexa.
-
-### Tutorials & Guides
-* [Voice Design Guide](https://developer.amazon.com/designing-for-voice/) - A great resource for learning conversational and voice user interface design.
-* [Trivia Template](https://github.com/alexa/skill-sample-nodejs-buttons-trivia/) - A more complex skill sample, shows a full featured trivia game template
-
-### Documentation
-* [Official Alexa Skills Kit Documentation](https://developer.amazon.com/docs/ask-overviews/build-skills-with-the-alexa-skills-kit.html) - Official Alexa Skills Kit Documentation
-* [Alexa Skills Kit Node.js SDK](https://github.com/alexa/alexa-skills-kit-sdk-for-nodejs/)
-
-
-## License
-
-This sample is licensed under the Amazon Software License.
-
