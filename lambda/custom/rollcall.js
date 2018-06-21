@@ -222,7 +222,7 @@ const RollCall = {
             ctx.outputSpeech.push("<break time='1s'/>");
             ctx.outputSpeech.push("Awesome. I've registered two buttons.");
 
-            if (sessionAttributes.DeviceIDs.indexOf(inputEvents[0].gadgetId) === -1) {
+            if (sessionAttributes.DeviceIDs.indexOf(gameInputEvents[0].gadgetId) === -1) {
                 sessionAttributes.DeviceIDs[2] = gameInputEvents[0].gadgetId;
             } else {
                 sessionAttributes.DeviceIDs[2] = gameInputEvents[1].gadgetId;

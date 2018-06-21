@@ -216,7 +216,7 @@ const GlobalHandlers = {
             const sessionAttributes = attributesManager.getSessionAttributes();
             const ctx = attributesManager.getRequestAttributes();
             const state = sessionAttributes.state || '';
-            // ---- Hanlde "Yes" when we're in the context of Roll Call ...
+            // ---- Handle "Yes" when we're in the context of Roll Call ...
             if (state === Settings.SKILL_STATES.ROLL_CALL_MODE 
                 && sessionAttributes.expectingEndSkillConfirmation === true) {
                 // pass control to the StartRollCall event handler to restart the rollcall process
@@ -227,12 +227,12 @@ const GlobalHandlers = {
                 return RollCall.StartRollCall(handlerInput);
             } else if (state === Settings.SKILL_STATES.EXIT_MODE 
                 && sessionAttributes.expectingEndSkillConfirmation === true) {
-                return GlobalHandlers.SessionEndedRequestHandler(handlerInput);                                
+                return GlobalHandlers.SessionEndedRequestHandler.handle(handlerInput);                                
             } else if (state === Settings.SKILL_STATES.EXIT_MODE) {
-                // ---- Hanlde "Yes", if we're in EXIT_MODE, but not expecting exit confirmation
+                // ---- Handle "Yes", if we're in EXIT_MODE, but not expecting exit confirmation
                 return GlobalHandlers.DefaultHandler.handle(handlerInput);
             } else {
-                // ---- Hanlde "Yes" in other cases .. just fall back on the help intent
+                // ---- Handle "Yes" in other cases .. just fall back on the help intent
                 return GlobalHandlers.HelpIntentHandler.handle(handlerInput);
             }
         }
