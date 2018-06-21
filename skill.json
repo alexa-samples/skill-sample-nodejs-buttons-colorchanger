@@ -14,6 +14,19 @@
           ],
           "name": "color changer",
           "description": "A Color Changer skill that showcases Echo Buttons functionality. The skill asks users to use to buttons, register them with the skill, and then use their voice to change the light animations playing on the buttons."
+        },
+        "en-GB": {
+          "summary": "This is an example skill to show how to use the Alexa Gadgets API",
+          "examplePhrases": [
+            "Alexa, open colour changer",
+            "Alexa, launch colour changer"
+          ],
+          "keywords": [
+            "buttons",
+            "games"
+          ],
+          "name": "colour changer",
+          "description": "A Colour Changer skill that showcases Echo Buttons functionality. The skill asks users to use to buttons, register them with the skill, and then use their voice to change the light animations playing on the buttons."
         }
       },
       "isAvailableWorldwide": true,
