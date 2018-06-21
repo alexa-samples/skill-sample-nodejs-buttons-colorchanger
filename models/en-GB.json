@@ -1,0 +1,60 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "colour changer",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent"
+        },
+        {
+          "name": "AMAZON.YesIntent"
+        },
+        {
+          "name": "AMAZON.NoIntent"
+        },
+        {
+          "name": "AMAZON.HelpIntent"
+        },
+        {
+          "name": "AMAZON.StopIntent"
+        },
+        {
+          "name": "colorIntent",
+          "slots": [
+            {
+              "name": "color",
+              "type": "COLOURS"
+            }
+          ],
+          "samples": [
+            "{color}",
+            "I like {color}",
+            "let's go with {color}"
+          ]
+        }
+      ],
+      "types": [
+        {
+          "values": [
+            {
+              "name": {
+                "value": "green"
+              }
+            },
+            {
+              "name": {
+                "value": "red"
+              }
+            },
+            {
+              "name": {
+                "value": "blue"
+              }
+            }
+          ],
+          "name": "COLOURS"
+        }
+      ]
+    }
+  }
+}
