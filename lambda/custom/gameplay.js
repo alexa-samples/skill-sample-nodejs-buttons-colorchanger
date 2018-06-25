@@ -74,8 +74,8 @@ const GamePlay = {
                    
         const uColor = request.intent.slots.color.value;
         console.log("User color: " + uColor);
-                   
-        if (uColor === undefined || Settings.COLOR_SHADES[uColor] === undefined) {
+        
+        if (uColor === undefined || Settings.COLORS_ALLOWED.indexOf(uColor) === -1) {
             ctx.reprompt = ["What color was that? Please pick a valid color!"];
             ctx.outputSpeech = ["Sorry, I didn't get that. " + ctx.reprompt[0]];
             ctx.openMicrophone = false;
@@ -149,10 +149,10 @@ const GamePlay = {
         }));
         // Reset button animation for skill exit
         ctx.directives.push(GadgetDirectives.setButtonDownAnimation(
-            Settings.DEFUALT_ANIMATIONS.ButtonDown, {'targetGadgets': deviceIds } ));
+            Settings.DEFAULT_ANIMATIONS.ButtonDown, {'targetGadgets': deviceIds } ));
         ctx.directives.push(GadgetDirectives.setButtonUpAnimation(
-            Settings.DEFUALT_ANIMATIONS.ButtonUp, {'targetGadgets': deviceIds } ));
-
+            Settings.DEFAULT_ANIMATIONS.ButtonUp, {'targetGadgets': deviceIds } ));
+                
         // Set Skill End flag
         sessionAttributes.expectingEndSkillConfirmation = true;
         sessionAttributes.state = Settings.SKILL_STATES.EXIT_MODE;
