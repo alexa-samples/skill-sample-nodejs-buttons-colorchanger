@@ -141,6 +141,7 @@ const GlobalHandlers = {
         canHandle(handlerInput) {
             const { request } = handlerInput.requestEnvelope;
             const intentName = request.intent ? request.intent.name : '';
+                    
             console.log("Global.StopIntentHandler: checking if it can handle " 
                 + request.type + " for " + intentName);
             return request.type === 'IntentRequest'
@@ -149,7 +150,7 @@ const GlobalHandlers = {
         handle(handlerInput) {
             console.log("Global.StopIntentHandler: handling request");
             handlerInput.responseBuilder.speak('Good Bye!')
-            GlobalHandlers.SessionEndedRequestHandler.handle(handlerInput);
+            return GlobalHandlers.SessionEndedRequestHandler.handle(handlerInput);
         }
     },
     GameEngineInputHandler: {
@@ -189,11 +190,11 @@ const GlobalHandlers = {
                             return GamePlay.HandleButtonPressed(handlerInput);
                         }
                         break;
-                    case 'timeout':
-                        if (sessionAttributes.state == Settings.SKILL_STATES.ROLL_CALL_MODE) {                    
-                            return RollCall.HandleTimeout(handlerInput);
-                        } else if (sessionAttributes.state == Settings.SKILL_STATES.PLAY_MODE) {
+                    case 'timeout':                        
+                        if (sessionAttributes.state == Settings.SKILL_STATES.PLAY_MODE) {
                             return GamePlay.HandleTimeout(handlerInput);
+                        } else {
+                            RollCall.HandleTimeout(handlerInput);
                         }
                         break;
                 }
@@ -309,7 +310,9 @@ const GlobalHandlers = {
             console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
             let response = handlerInput.responseBuilder.getResponse();
             response.shouldEndSession = true;
-            return response;
+            const ctx = handlerInput.attributesManager.getRequestAttributes();
+            ctx.outputSpeech = ["Good bye!"];            
+            return handlerInput.responseBuilder.getResponse();
         },
     },
     RequestInterceptor: {

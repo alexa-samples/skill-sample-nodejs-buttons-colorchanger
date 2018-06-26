@@ -129,6 +129,7 @@ const RollCall = {
          ctx.outputSpeech.push("they're connected and ready for play. ");
          ctx.outputSpeech.push("Ok. Press the first button and wait for confirmation");
          ctx.outputSpeech.push("before pressing the second button.");        
+         ctx.outputSpeech.push(Settings.WAITING_AUDIO);
 
          ctx.timeout = 50000;
          
