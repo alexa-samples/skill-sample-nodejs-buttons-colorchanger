@@ -36,7 +36,7 @@ Before you create the Color Changer skill, you must take the following steps:
 * **Create an Amazon developer account** – If you don't already have an Amazon developer account, go to the [developer portal]("https://developer.amazon.com/alexa/console/ask) and select **Sign In** in the upper right to create a free account.
 * **Sign up for AWS** – If you haven't already, sign up for AWS by going to [AWS Free Tier](https://aws.amazon.com/free). For most developers, the [AWS Lambda Free Tier](https://aws.amazon.com/lambda/pricing/) and [Amazon DynamoDB Free Tier](https://aws.amazon.com/dynamodb/pricing/) are sufficient for the function that supports an Alexa skill.
 * **Get Echo Buttons** – This skill requires two [Echo Buttons](https://www.amazon.com/Echo-Buttons-Alexa-Gadget-Pack/dp/B072C4KCQH). 
-* This skill sample uses **NodeJS v6**. If you do not have NodeJS already installed on your computer, install it now. The simplest way to install NodeJS is to use [nvm](https://nodejs.org/en/download/package-manager/#nvm) a Node Version Manager command line tool, with instructions here: https://nodejs.org/en/download/package-manager/#nvm
+* This skill sample uses **NodeJS v8**. If you do not have NodeJS already installed on your computer, install it now. The simplest way to install NodeJS is to use [nvm](https://nodejs.org/en/download/package-manager/#nvm) a Node Version Manager command line tool, with instructions here: https://nodejs.org/en/download/package-manager/#nvm
 
 ## Step 1-Setup Local Development Environment 
 In this step, you will get a copy of the sample skill code on your local computer and prepare a deployment package (a zip file that you create out of the Color Changer skill code) to upload to Lambda in the next step.
@@ -52,7 +52,7 @@ In this step, you upload the deployment package to AWS Lambda. Later, when you s
 2. Select **Create function**.
 3. Make sure that you are on the **Author from scratch** page.
 4. For **Name**, enter **ColorChanger**.
-5. For **Runtime**, select **Node.js 6.10**.
+5. For **Runtime**, select **Node.js 8.10**.
 6. For **Role**, select **Create a custom role**. This will take you to the IAM console.
 7. In the IAM console, expand **View Policy Document**.
 8. Click **Edit**, click **OK** in the dialog box, and then replace the entire policy with the following JSON (_the dynamodb permissions in the policy below are only needed if you choose to enable session attributes to be stored in DynamoDB, in the skill code (index.js)_):
@@ -87,7 +87,7 @@ In this step, you upload the deployment package to AWS Lambda. Later, when you s
 11. For **Existing Role**, select the role you just created.
 12. In the lower right, click the **Create function** button. The function might take a moment to create.
 13. Scroll down a bit. Under the **Function code** section, for **Code entry** type, select **Upload a .ZIP** file. Then click **Upload** and choose the **ColorChanger** zip file that you created in the first step.
-14. For **Runtime**, select **Node.js 6.10**.
+14. For **Runtime**, select **Node.js 8.10**.
 15. At the top of the page, under the **Designer** section, under **Add triggers**, select **Alexa Skills Kit**. 
 16. At the bottom of the page, under **Configure Triggers**, select **Disable** for **Skill ID verification**.
 17. At the bottom of the page, click **Add**.
@@ -146,6 +146,8 @@ Continuing from the previous step, do the following:
    12. On the left side, select **Intents**.   
    13. At the top of the page, select **Save Model**.
    14. Select **Build Model**. The model might take a moment to build.
+
+ **Note** An alternative to manually adding the intents one by one is to use the JSON editor to upload the `en-US.json` model file from the `models` folder directly to the web editor.
 
 ## Step 6-Select Gadget Interfaces
 

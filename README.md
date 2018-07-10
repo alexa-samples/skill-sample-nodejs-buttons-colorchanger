@@ -10,12 +10,14 @@ These instructions show how to create a skill called Color Changer, which demons
 
 ## Pre-requisites
 
-* Node.js (> v6.9)
+* Node.js (> v8.9)
 * Register for an [AWS Account](https://aws.amazon.com/)
 * Install and Setup [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/installing.html)
 * Configure a named [AWS CLI Profile](https://docs.aws.amazon.com/cli/latest/userguide/cli-multiple-profiles.html)  
 * Register for an [Amazon Developer Account](https://developer.amazon.com/)
 * Install and Setup [ASK CLI](https://developer.amazon.com/docs/smapi/quick-start-alexa-skills-kit-command-line-interface.html)
+
+**Note** This skill requires a NodeJS 8.10 or newer runtime. When deploying to Lambda, make sure the selected runtime is Node JS 8.10!
 
 ### Installation
 
@@ -51,6 +53,8 @@ ASK CLI will create the skill and the lambda function for you. The Lambda functi
 	```bash
 	ask deploy -p color-changer
 	```
+
+	**Note** This skill requires a NodeJS 8.10 or newer runtime. When deploying to Lambda, make sure the selected runtime is Node JS 8.10! At this time, the ASK CLI does not have an option to specify the Lambda runtime version so you will have to make the change manually in the AWS Lambda Console. 
 
 ### Testing
 
