@@ -3,9 +3,9 @@
 
 # Color Changer Skill for Echo Buttons
 
-**Important: The Gadgets Skill API is in beta and is subject to change at any time without notice. We welcome your feedback.**
+**Important: The Echo Buttons Skill API is in beta and is subject to change at any time without notice. We welcome your feedback.**
 
-These instructions show how to create a skill called Color Changer, which demonstrates the core functionality of an [Echo Button](https://www.amazon.com/Echo-Buttons-Alexa-Gadget-Pack/dp/B072C4KCQH) skill. It covers [roll call](https://developer.amazon.com/docs/gadget-skills/discover-echo-buttons.html#goals), starting and stopping the [Input Handler](https://developer.amazon.com/docs/gadget-skills/receive-echo-button-events.html#flow), and [defining animations](https://developer.amazon.com/docs/gadget-skills/control-echo-buttons.html#animate) for different button events. It also demonstrates how Echo Buttons can interrupt text-to-speech (TTS).
+These instructions show how to create a skill called Color Changer, which demonstrates the core functionality of an [Echo Button](https://www.amazon.com/Echo-Buttons-Alexa-Gadget-Pack/dp/B072C4KCQH) skill. It covers [roll call](https://developer.amazon.com/docs/echo-button-skills/discover-echo-buttons.html#goals), starting and stopping the [Input Handler](https://developer.amazon.com/docs/echo-button-skills/receive-echo-button-events.html#flow), and [defining animations](https://developer.amazon.com/docs/echo-button-skills/control-echo-buttons.html#animate) for different button events. It also demonstrates how Echo Buttons can interrupt text-to-speech (TTS).
 
 
 ## Pre-requisites

@@ -27,7 +27,7 @@ const Settings = require('settings.js');
     
 // Define a recognizer for button down events that will match when any button is pressed down.
 // We'll use this recognizer as trigger source for the "button_down_event" during play
-// see: https://developer.amazon.com/docs/gadget-skills/define-echo-button-events.html#recognizers
+// see: https://developer.amazon.com/docs/echo-button-skills/define-echo-button-events.html#recognizers
 const DIRECT_BUTTON_DOWN_RECOGNIZER = {
     "button_down_recognizer": {
         "type": "match",
@@ -43,7 +43,7 @@ const DIRECT_BUTTON_DOWN_RECOGNIZER = {
 // Define named events based on the DIRECT_BUTTON_DOWN_RECOGNIZER and the built-in "timed out" recognizer
 // to report back to the skill when either of the two buttons in play was pressed and eventually when the
 // input handler times out
-// see: https://developer.amazon.com/docs/gadget-skills/define-echo-button-events.html#define
+// see: https://developer.amazon.com/docs/echo-button-skills/define-echo-button-events.html#define
 const DIRECT_MODE_EVENTS = {
     "button_down_event": {
         "meets": ["button_down_recognizer"],

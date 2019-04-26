@@ -3,11 +3,11 @@
 
 # Color Changer Skill for Echo Buttons
 
-**Important: The Gadgets Skill API is in beta and is subject to change at any time without notice. We welcome your feedback.**
+**Important: The Echo Buttons Skill API is in beta and is subject to change at any time without notice. We welcome your feedback.**
 
 ## Skill Flow
 
-When the Color Changer skill begins, Alexa will ask you to press the Echo Buttons that you want to use. This is called [roll call](https://developer.amazon.com/docs/gadget-skills/discover-echo-buttons.html#goals). After you press the buttons, Alexa will ask you to select a color: red, blue, or green. When you select a color, the skill will send [animation directives](https://developer.amazon.com/docs/gadget-skills/control-echo-buttons.html#animate) to all the Echo Buttons. Once you have selected your color, Alexa will ask you to press the buttons. When you press a button, the skill will interrupt Alexa's speech and change the button's LED color to the color that you selected previously.
+When the Color Changer skill begins, Alexa will ask you to press the Echo Buttons that you want to use. This is called [roll call](https://developer.amazon.com/docs/echo-button-skills/discover-echo-buttons.html#goals). After you press the buttons, Alexa will ask you to select a color: red, blue, or green. When you select a color, the skill will send [animation directives](https://developer.amazon.com/docs/echo-button-skills/control-echo-buttons.html#animate) to all the Echo Buttons. Once you have selected your color, Alexa will ask you to press the buttons. When you press a button, the skill will interrupt Alexa's speech and change the button's LED color to the color that you selected previously.
 
 Click on the following diagram to see a voice user interface (VUI) that shows how a user interacts with the skill. To zoom in, click on the diagram again when it opens in the browser window.
 

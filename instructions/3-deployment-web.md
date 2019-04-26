@@ -3,7 +3,7 @@
 
 # Color Changer Skill for Echo Buttons
 
-**Important: The Gadgets Skill API is in beta and is subject to change at any time without notice. We welcome your feedback.**
+**Important: The Echo Buttons Skill API is in beta and is subject to change at any time without notice. We welcome your feedback.**
 
 This sample skill uses:
 
@@ -12,7 +12,7 @@ This sample skill uses:
 * [AWS Lambda](https://aws.amazon.com/lambda) to host the skill
 * [Amazon DynamoDB](https://aws.amazon.com/dynamodb) to save a state table (Optional)
 * The [Alexa Skills Kit (ASK) SDK for Node.js](https://github.com/alexa/alexa-skills-kit-sdk-for-nodejs) to simplify the skill code
-* An animation library to create simple animations such as fade out and breathe, as shown in [Animations](https://developer.amazon.com/docs/gadget-skills/echo-button-animation-library.html#animations). 
+* An animation library to create simple animations such as fade out and breathe, as shown in [Animations](https://developer.amazon.com/docs/echo-button-skills/echo-button-animation-library.html#animations). 
 
 
 ## Table of Contents
@@ -154,7 +154,7 @@ Continuing from the previous step, do the following:
 Continuing from the previous step, do the following:
 
 1. On the left side, select **Interfaces**.
-2. In the **Alexa Gadget** row of the interface list, select **Gadget Controller** and **Game Engine**.
+2. From the interface list, select and toggle both **Gadget Controller** and **Game Engine** on.
 3. At the top of the page, select **Save Interfaces**.
 
 ## Step 7-Enter the Endpoint

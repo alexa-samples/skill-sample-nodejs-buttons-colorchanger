@@ -26,7 +26,7 @@ const Settings = require('settings.js');
 
 // Define some animations that we'll use during roll call, to be played in various situations,
 // such as when buttons "check in" during roll call, or after both buttons were detected. 
-// See: https://developer.amazon.com/docs/gadget-skills/control-echo-buttons.html#animate
+// See: https://developer.amazon.com/docs/echo-button-skills/control-echo-buttons.html#animate
 const ROLL_CALL_ANIMATIONS = {
     'RollCallComplete': {
         'targetGadgets': [],
@@ -52,9 +52,10 @@ const ROLL_CALL_ANIMATIONS = {
 
 // Define two recognizers that will capture the first time each of two arbitrary buttons is pressed. 
 //  We'll use proxies to refer to the two different buttons because we don't know ahead of time 
-//  which two buttons will be used (see: https://developer.amazon.com/docs/gadget-skills/define-echo-button-events.html#proxies)
+//  which two buttons will be used 
+// (see: https://developer.amazon.com/docs/echo-button-skills/define-echo-button-events.html#proxies)
 // The two recogniziers will be used as triggers for two input handler events, used during roll call. 
-// see: https://developer.amazon.com/docs/gadget-skills/define-echo-button-events.html#recognizers
+// see: https://developer.amazon.com/docs/echo-button-skills/define-echo-button-events.html#recognizers
 const ROLL_CALL_RECOGNIZERS = {
     "roll_call_first_button_recognizer": {
         "type": "match",
@@ -85,7 +86,7 @@ const ROLL_CALL_RECOGNIZERS = {
 // Define named events based on the ROLL_CALL_RECOGNIZERS and the built-in "timed out" recognizer
 // to report back to the skill when the first button checks in, when the second button checks in,
 // as well as then the input handler times out, if this happens before two buttons checked in. 
-// see: https://developer.amazon.com/docs/gadget-skills/define-echo-button-events.html#define
+// see: https://developer.amazon.com/docs/echo-button-skills/define-echo-button-events.html#define
 const ROLL_CALL_EVENTS = {
     "first_button_checked_in": {
         "meets": ["roll_call_first_button_recognizer"],
@@ -156,7 +157,7 @@ const RollCall = {
             ROLL_CALL_ANIMATIONS.ButtonCheckInUp));   
  
         // start keeping track of some state
-        // see: https://developer.amazon.com/docs/gadget-skills/save-state-echo-button-skill.html
+        // see: https://developer.amazon.com/docs/echo-button-skills/save-state-echo-button-skill.html
         sessionAttributes.buttonCount = 0;
         sessionAttributes.isRollCallComplete = false;
         sessionAttributes.expectingEndSkillConfirmation = false;

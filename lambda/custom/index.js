@@ -106,7 +106,7 @@ const GlobalHandlers = {
 
             if (sessionAttributes.CurrentInputHandlerID) {
                 // if there is an active input handler, stop it so it doesn't interrup Alexa speaking the Help prompt
-                // see: https://developer.amazon.com/docs/gadget-skills/receive-echo-button-events.html#stop
+                // see: https://developer.amazon.com/docs/echo-button-skills/receive-echo-button-events.html#stop
                 ctx.directives.push(GadgetDirectives.stopInputHandler({ 
                     'id': sessionAttributes.CurrentInputHandlerID
                 }));
@@ -349,14 +349,14 @@ const GlobalHandlers = {
             if ('openMicrophone' in ctx) {
                 if (ctx.openMicrophone) {
                     // setting shouldEndSession = fase  -  lets Alexa know that we want an answer from the user 
-                    // see: https://developer.amazon.com/docs/gadget-skills/receive-voice-input.html#open
-                    //      https://developer.amazon.com/docs/gadget-skills/keep-session-open.html
+                    // see: https://developer.amazon.com/docs/echo-button-skills/receive-voice-input.html#open
+                    //      https://developer.amazon.com/docs/echo-button-skills/keep-session-open.html
                     response.shouldEndSession = false;
                     console.log("Global.ResponseInterceptor: request to open microphone -> shouldEndSession = false"); 
                 } else {
                     // deleting shouldEndSession will keep the skill session going, 
                     //  while the input handler is active, waiting for button presses
-                    // see: https://developer.amazon.com/docs/gadget-skills/keep-session-open.html
+                    // see: https://developer.amazon.com/docs/echo-button-skills/keep-session-open.html
                     delete response.shouldEndSession;
                     console.log("Global.ResponseInterceptor: request to open microphone -> delete shouldEndSession"); 
                 }

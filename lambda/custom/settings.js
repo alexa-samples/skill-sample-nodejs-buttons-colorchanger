@@ -24,11 +24,11 @@ module.exports = {
     // The skill states are the different parts of the skill.
     SKILL_STATES: {
         // Roll Call mode performs roll call and button registration.
-        // https://developer.amazon.com/docs/gadget-skills/discover-echo-buttons.html
+        // https://developer.amazon.com/docs/echo-button-skills/discover-echo-buttons.html
         ROLL_CALL_MODE: '',
         PLAY_MODE: '_PLAY_MODE',
         // Exit mode performs the actions described in
-        // https://developer.amazon.com/docs/gadget-skills/exit-echo-button-skill.html
+        // https://developer.amazon.com/docs/echo-button-skills/exit-echo-button-skill.html
         EXIT_MODE: '_EXIT_MODE'
     },
 
@@ -51,7 +51,7 @@ module.exports = {
 
     // Define animations to be played on button down and button up that are like the default animations on the buttons
     // We'll use these animations when resetting play state
-    // See: https://developer.amazon.com/docs/gadget-skills/control-echo-buttons.html#animate
+    // See: https://developer.amazon.com/docs/echo-button-skills/control-echo-buttons.html#animate
     DEFAULT_ANIMATIONS: {
         'ButtonDown' : {
             'targetGadgets': [],
