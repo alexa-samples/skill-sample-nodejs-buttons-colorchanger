@@ -1,0 +1,14 @@
+{
+  "deploy_settings": {
+    "color-changer": {
+      "skill_id": "",
+      "was_cloned": false,
+      "merge": {}
+    },
+    "default": {
+      "skill_id": "",
+      "was_cloned": false,
+      "merge": {}
+    }
+  }
+}
