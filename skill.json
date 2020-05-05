@@ -17,9 +17,9 @@
         },
         "en-GB": {
           "summary": "This is an example skill to show how to use the Echo Buttons API",
-          "examplePhrases": [
-            "Alexa, open colour changer",
-            "Alexa, launch colour changer"
+            "examplePhrases": [
+              "Alexa, open colour changer",
+              "Alexa, launch colour changer"
           ],
           "keywords": [
             "buttons",
@@ -27,7 +27,7 @@
           ],
           "name": "colour changer",
           "description": "A Colour Changer skill that showcases Echo Buttons functionality. The skill asks users to use to buttons, register them with the skill, and then use their voice to change the light animations playing on the buttons."
-        }
+        }      
       },
       "isAvailableWorldwide": true,
       "testingInstructions": "Open the skill and follow the prompts. You will need two Echo buttons to test.",
@@ -43,6 +43,10 @@
     },
     "apis": {
       "custom": {
+        "endpoint": {
+          "sourceDir": "lambda/custom",
+          "uri": "ask-custom-ColorChangerSkill"
+        },
         "interfaces": [
           {
             "type": "GAME_ENGINE"
